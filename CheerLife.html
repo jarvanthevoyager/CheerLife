@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>啦啦隊人生模擬器</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📣</text></svg>">
+<style>
+:root{--bg:#0a0e1a;--bg2:#0e1424;--card:#151d2e;--line:#283244;--line2:#374357;
+--txt:#f1f5f9;--sub:#94a3b8;--dim:#64748b;--pink:#ec4899;--purple:#8b5cf6;--gold:#fbbf24;
+--green:#10b981;--red:#ef4444;--t1:#ec4899;--t2:#8b5cf6;--s1:#14b8a6;--s2:#5eead4;
+--r:16px;--r2:12px;--sh:0 4px 18px rgba(0,0,0,.42);--nav:64px;
+--sab:env(safe-area-inset-bottom,0px);--sat:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;
+font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC",sans-serif}
+body::before{content:'';position:fixed;inset:0 0 auto 0;height:280px;z-index:-1;
+background:radial-gradient(120% 100% at 50% 0,#16203a,var(--bg) 70%)}
+.app{width:100%;max-width:1040px;margin:0 auto}
+.hd{padding:calc(var(--sat) + 16px) 16px 12px;text-align:center}
+.hd h1{font-size:1.42rem;font-weight:900;line-height:1.25;
+background:linear-gradient(100deg,var(--pink),var(--purple) 62%,#06b6d4);
+-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hd .en{font-size:.66rem;font-weight:800;letter-spacing:3px;color:var(--dim);margin-top:3px}
+.hd p{font-size:.74rem;color:var(--dim);margin-top:7px;font-style:italic}
+.bar{position:sticky;top:0;z-index:30;padding:calc(var(--sat) + 8px) 12px 8px;
+background:rgba(10,14,26,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar1{display:flex;align-items:center;gap:10px}
+.av{flex:0 0 auto;width:40px;height:40px;border-radius:13px;display:grid;place-items:center;
+font-size:1.1rem;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--t1),var(--t2))}
+.who{flex:1;min-width:0}
+.who b{display:block;font-size:.96rem;font-weight:800}
+.who i{display:block;font-style:normal;font-size:.7rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agebox{flex:0 0 auto;text-align:right;line-height:1.15}
+.agebox b{font-size:1.2rem;font-weight:900;font-variant-numeric:tabular-nums;
+background:linear-gradient(var(--t1),var(--t2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.agebox i{display:block;font-style:normal;font-size:.63rem;color:var(--dim)}
+.strip{display:flex;gap:5px;margin-top:8px}
+.sc{flex:1;min-width:0;background:#0d1424;border:1px solid var(--line);border-radius:9px;padding:5px 4px;text-align:center}
+.sc b{display:block;font-size:.85rem;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc i{display:block;font-style:normal;font-size:.57rem;color:var(--dim)}
+.steps{display:flex;gap:5px;margin-top:8px}
+.sp{flex:1;padding:6px 2px;text-align:center;border-radius:9px;font-size:.68rem;font-weight:800;
+background:#0d1424;border:1px solid var(--line);color:var(--dim);transition:.25s}
+.sp.on{background:linear-gradient(100deg,var(--t1),var(--t2));border-color:transparent;color:#fff}
+.sp.did{color:var(--sub);border-color:var(--line2)}
+.body{padding:12px 12px calc(var(--nav) + var(--sab) + 20px)}
+.stack{display:flex;flex-direction:column;gap:11px}
+.card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);
+border-radius:var(--r);box-shadow:var(--sh)}
+.pad{padding:15px}
+.ct{font-size:.67rem;font-weight:900;letter-spacing:1.6px;color:var(--dim);margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.ct::before{content:'';width:3px;height:12px;border-radius:2px;background:linear-gradient(var(--t1),var(--t2))}
+.team{position:relative;overflow:hidden;padding:15px;border-left:4px solid var(--t1)}
+.team::after{content:'';position:absolute;right:-46px;top:-46px;width:160px;height:160px;border-radius:50%;
+background:radial-gradient(circle,color-mix(in srgb,var(--t1) 30%,transparent),transparent 68%)}
+.team .lg{font-size:.65rem;font-weight:900;letter-spacing:1.2px;color:var(--sub)}
+.team .nm{font-size:1.12rem;font-weight:900;margin:3px 0 6px;position:relative;z-index:1}
+.team .sd{font-size:.78rem;font-weight:800;color:var(--s2);margin-bottom:8px;position:relative;z-index:1}
+.team .mt{display:flex;flex-wrap:wrap;gap:5px;position:relative;z-index:1}
+.tclr{display:inline-flex;gap:3px;vertical-align:middle;margin-right:5px}
+.tclr i{width:9px;height:9px;border-radius:50%;display:block}
+.tag{display:inline-block;font-size:.68rem;font-weight:900;padding:4px 11px;border-radius:20px;margin-bottom:11px;
+background:linear-gradient(100deg,var(--pink),var(--purple));color:#fff}
+.tag.warn{background:linear-gradient(100deg,#d97706,#f59e0b);color:#1c1917}
+.tag.dgr{background:linear-gradient(100deg,#b91c1c,#ef4444)}
+.tag.acc{background:linear-gradient(100deg,#6d28d9,#a78bfa)}
+.tag.sch{background:linear-gradient(100deg,#1d4ed8,#60a5fa)}
+.tag.ok{background:linear-gradient(100deg,#047857,#34d399);color:#022c22}
+.tag.lgd{background:linear-gradient(100deg,#b45309,#fbbf24);color:#1c1917}
+.evt h2{font-size:1.08rem;font-weight:800;line-height:1.5;margin-bottom:9px}
+.evt .ds{font-size:.87rem;line-height:1.8;color:#cbd5e1;white-space:pre-line}
+.res{margin-top:13px;border-radius:var(--r2);padding:13px;border:1px solid;display:none;animation:pop .34s cubic-bezier(.2,.85,.2,1)}
+@keyframes pop{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.res.win{background:linear-gradient(160deg,rgba(6,78,59,.9),rgba(6,78,59,.42));border-color:#10b981;color:#d1fae5}
+.res.lose{background:linear-gradient(160deg,rgba(127,29,29,.9),rgba(127,29,29,.42));border-color:#ef4444;color:#fee2e2}
+.res .dc{font-size:.76rem;line-height:1.7;opacity:.94;padding-bottom:7px;margin-bottom:7px;
+border-bottom:1px dashed rgba(255,255,255,.22);word-break:break-word}
+.res .sy{font-size:.86rem;line-height:1.75}
+.res .cs{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.picks{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.btn{width:100%;min-height:52px;text-align:left;padding:13px 15px;border-radius:var(--r2);cursor:pointer;
+background:#101828;border:1px solid var(--line);color:var(--txt);transition:.15s;
+display:flex;flex-direction:column;gap:6px;font-size:.9rem;font-family:inherit}
+.btn:active{transform:scale(.985);background:#16203a}
+.btn b{font-weight:700;line-height:1.5}
+.btn .cs{display:flex;flex-wrap:wrap;gap:5px}
+.go{background:linear-gradient(100deg,var(--pink),var(--purple));border:0;text-align:center;align-items:center;font-weight:900}
+.stay{background:linear-gradient(100deg,#059669,#10b981);border:0}
+.quit{background:#2e1065;border-color:#6d28d9}
+.side{background:linear-gradient(100deg,#0f766e,#14b8a6);border:0}
+.poach{background:linear-gradient(100deg,#b45309,#f59e0b);border:0;color:#1c1917}
+.poach b,.poach .chip{color:#1c1917!important}
+.cont{background:linear-gradient(100deg,#1d4ed8,#3b82f6);border:0;text-align:center;align-items:center;font-weight:900}
+.shr{background:linear-gradient(100deg,#0f766e,#14b8a6);border:0;text-align:center;align-items:center;font-weight:900}
+.ghost{background:#0d1424;border:1px solid var(--line);color:var(--sub);text-align:center;align-items:center;min-height:46px}
+.chip{font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:20px;white-space:nowrap;border:1px solid;line-height:1.65}
+.c-up{color:#6ee7b7;border-color:rgba(16,185,129,.42);background:rgba(16,185,129,.13)}
+.c-dn{color:#fca5a5;border-color:rgba(239,68,68,.42);background:rgba(239,68,68,.13)}
+.c-mon{color:#fcd34d;border-color:rgba(251,191,36,.42);background:rgba(251,191,36,.13)}
+.c-fan{color:#f9a8d4;border-color:rgba(236,72,153,.42);background:rgba(236,72,153,.13)}
+.c-dif{color:#c4b5fd;border-color:rgba(139,92,246,.46);background:rgba(139,92,246,.15)}
+.c-ap{color:#7dd3fc;border-color:rgba(6,182,212,.42);background:rgba(6,182,212,.13)}
+.c-neu{color:var(--sub);border-color:var(--line);background:#0d1424;white-space:normal}
+.kpi{display:flex;align-items:center;gap:14px;padding:15px}
+.ring{position:relative;width:84px;height:84px;flex:0 0 auto}
+.ring svg{transform:rotate(-90deg);display:block}
+.ring .in{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .in b{font-size:1.5rem;font-weight:900;font-variant-numeric:tabular-nums}
+.ring .in i{font-style:normal;font-size:.56rem;color:var(--dim);letter-spacing:1.4px}
+.k4{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:7px;min-width:0}
+.kc{background:#0d1424;border:1px solid var(--line);border-radius:10px;padding:7px 9px;min-width:0}
+.kc b{display:block;font-size:.98rem;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kc i{font-style:normal;font-size:.62rem;color:var(--dim)}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar .lb{display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:5px}
+.bar .lb i{font-style:normal;color:var(--sub)}
+.bar .lb b{font-variant-numeric:tabular-nums;font-weight:800}
+.trk{height:8px;border-radius:20px;background:#0a1020;overflow:hidden;border:1px solid var(--line)}
+.fil{height:100%;border-radius:20px;transition:width .55s cubic-bezier(.4,0,.2,1)}
+.f-ok{background:linear-gradient(90deg,#059669,#34d399)}
+.f-md{background:linear-gradient(90deg,#b45309,#f59e0b)}
+.f-bad{background:linear-gradient(90deg,#b91c1c,#f87171)}
+.radar{display:grid;place-items:center;padding:2px 0 12px}
+.radar svg{width:100%;max-width:216px;height:auto;display:block}
+.attrs{display:flex;flex-direction:column;gap:8px}
+.at{display:grid;grid-template-columns:60px 1fr 60px;gap:9px;align-items:center;font-size:.76rem}
+.at .n{color:var(--sub);white-space:nowrap}
+.at .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--dim);font-size:.7rem}
+.at .v b{color:var(--txt);font-size:.86rem;font-weight:800}
+.at.mx .v b{color:var(--gold)}
+.at .trk{height:7px}
+.at .fil{background:linear-gradient(90deg,var(--t1),var(--t2))}
+.at.mx .fil{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.goal{padding:12px 14px;background:linear-gradient(100deg,rgba(251,113,133,.13),rgba(236,72,153,.05));
+border:1px solid rgba(251,113,133,.3);border-radius:var(--r2)}
+.goal b{display:block;font-size:.86rem;margin-bottom:4px}
+.goal i{font-style:normal;font-size:.72rem;color:var(--sub)}
+.chain{display:flex;flex-direction:column;gap:9px}
+.cl{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.75rem}
+.cl span{color:var(--sub)}
+.dots{display:flex;gap:3px}
+.dot{width:15px;height:5px;border-radius:20px;background:var(--line)}
+.dot.on{background:linear-gradient(90deg,var(--t1),var(--t2))}
+.bdgs{display:flex;flex-wrap:wrap;gap:6px}
+.bd{font-size:.67rem;font-weight:800;padding:3px 9px;border-radius:20px;border:1px solid;line-height:1.7}
+.bd-s{color:var(--sub);border-color:var(--line);background:#0d1424;font-family:ui-monospace,monospace}
+.bd-g{color:var(--gold);border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.1)}
+.bd-p{color:#c4b5fd;border-color:rgba(139,92,246,.45);background:rgba(139,92,246,.1)}
+.bd-k{color:#f9a8d4;border-color:rgba(236,72,153,.45);background:rgba(236,72,153,.1)}
+.bd-b{color:#93c5fd;border-color:rgba(59,130,246,.45);background:rgba(59,130,246,.1)}
+.bd-e{color:#6ee7b7;border-color:rgba(16,185,129,.45);background:rgba(16,185,129,.1)}
+.bd-r{color:#fca5a5;border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.1)}
+.bd-t{color:var(--s2);border-color:rgba(20,184,166,.5);background:rgba(20,184,166,.12)}
+.yr{font-size:.66rem;font-weight:900;color:var(--dim);letter-spacing:1.4px;margin:12px 0 7px;
+position:sticky;top:0;background:linear-gradient(var(--card) 60%,rgba(21,29,46,.85));padding:3px 0}
+.yr:first-child{margin-top:0}
+.li{position:relative;padding:0 0 10px 17px;font-size:.78rem;line-height:1.7;color:var(--sub)}
+.li::before{content:'';position:absolute;left:2px;top:8px;width:6px;height:6px;border-radius:50%;
+background:var(--t1);box-shadow:0 0 0 2px rgba(236,72,153,.2)}
+.li::after{content:'';position:absolute;left:4.5px;top:16px;bottom:0;width:1px;background:var(--line)}
+.li:last-child::after{display:none}
+.li em{font-style:normal;color:var(--txt);font-weight:700}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;padding:6px 8px calc(6px + var(--sab));
+background:rgba(13,19,34,.94);backdrop-filter:blur(16px);border-top:1px solid var(--line)}
+.nb{flex:1;min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+background:none;border:0;color:var(--dim);font-family:inherit;font-size:.66rem;font-weight:800;cursor:pointer;border-radius:12px}
+.nb em{font-style:normal;font-size:1.22rem;line-height:1}
+.nb.on{color:var(--t1);background:rgba(236,72,153,.1)}
+.lb2{font-size:.79rem;font-weight:800;color:var(--sub);margin-bottom:8px;display:block}
+.row{display:flex;gap:8px}
+.inp{flex:1;min-width:0;padding:13px 14px;background:#0d1424;border:1px solid var(--line);color:var(--txt);
+border-radius:var(--r2);outline:none;font-size:16px;font-family:inherit}
+.inp:focus{border-color:var(--pink)}
+#seed{font:800 1.02rem/1 ui-monospace,Menlo,monospace;letter-spacing:3px;text-transform:uppercase;text-align:center}
+.mini{flex:0 0 auto;min-height:48px;padding:0 15px;background:#0d1424;border:1px solid var(--line);
+color:var(--pink);border-radius:var(--r2);cursor:pointer;font-size:.84rem;font-weight:800;font-family:inherit}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{position:relative;text-align:left;min-height:54px;padding:13px 14px 13px 44px;background:#0d1424;
+border:1px solid var(--line);border-radius:var(--r2);cursor:pointer;color:var(--txt);font-family:inherit}
+.opt::before{content:'';position:absolute;left:15px;top:50%;transform:translateY(-50%);
+width:17px;height:17px;border-radius:50%;border:2px solid var(--line2)}
+.opt[aria-checked=true]{border-color:var(--pink);background:linear-gradient(100deg,rgba(236,72,153,.16),rgba(139,92,246,.07))}
+.opt[aria-checked=true]::before{border-color:var(--pink);background:var(--pink);box-shadow:inset 0 0 0 3.5px #0d1424}
+.opt b{display:block;font-size:.91rem;margin-bottom:3px}
+.opt i{display:block;font-style:normal;font-size:.73rem;color:var(--sub)}
+.note{font-size:.72rem;color:var(--dim);line-height:1.6}
+#toast{position:fixed;left:0;right:0;bottom:calc(var(--nav) + var(--sab) + 14px);z-index:60;
+display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;padding:0 16px}
+.ts{max-width:100%;padding:7px 15px;border-radius:20px;font-size:.78rem;font-weight:800;
+backdrop-filter:blur(8px);border:1px solid;animation:up .3s cubic-bezier(.2,.9,.2,1),fade .4s 1.9s forwards}
+@keyframes up{from{opacity:0;transform:translateY(12px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes fade{to{opacity:0;transform:translateY(-6px)}}
+.ts-up{background:rgba(6,78,59,.93);border-color:#10b981;color:#a7f3d0}
+.ts-dn{background:rgba(127,29,29,.93);border-color:#ef4444;color:#fecaca}
+.ts-mon{background:rgba(120,53,15,.93);border-color:#f59e0b;color:#fde68a}
+.ts-fan{background:rgba(131,24,67,.93);border-color:#ec4899;color:#fbcfe8}
+.pg{display:none}.pg.on{display:block}.hide{display:none!important}
+#cardPrev{width:100%;border-radius:var(--r2);border:1px solid var(--line);margin-top:11px;display:none}
+#mask{position:fixed;inset:0;z-index:90;background:rgba(4,7,14,.78);backdrop-filter:blur(6px);
+display:none;align-items:center;justify-content:center;padding:20px}
+#mask.on{display:flex}
+.dlg{width:100%;max-width:400px;background:linear-gradient(180deg,var(--card),var(--bg2));
+border:1px solid var(--line2);border-radius:var(--r);padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.7);
+animation:pop .28s cubic-bezier(.2,.85,.2,1)}
+.dlg h3{font-size:1.05rem;font-weight:900;margin-bottom:9px}
+.dlg p{font-size:.85rem;color:#cbd5e1;line-height:1.75;margin-bottom:16px;white-space:pre-line}
+.dlg .r{display:flex;gap:9px}
+.dlg button{flex:1;min-height:48px;border-radius:var(--r2);border:0;cursor:pointer;
+font-family:inherit;font-size:.88rem;font-weight:800}
+.dlg .no{background:#0d1424;border:1px solid var(--line);color:var(--sub)}
+.dlg .yes{background:linear-gradient(100deg,#b91c1c,#ef4444);color:#fff}
+.foot2{text-align:center;padding:18px 16px calc(var(--nav) + var(--sab) + 24px);font-size:.72rem;color:var(--dim)}
+.foot2 a{color:var(--s2);font-weight:800;text-decoration:none;border-bottom:1px dotted rgba(94,234,212,.5)}
+.foot2 a:active{opacity:.6}
+@media(min-width:900px){
+.hd h1{font-size:1.85rem}.nav{display:none}.body{padding:14px 16px 30px}.strip{display:none}
+.pg{display:block!important}
+.cols{display:grid;grid-template-columns:1fr 306px;gap:12px;align-items:start}
+.colR{position:sticky;top:150px;display:flex;flex-direction:column;gap:11px}
+#pgLog{grid-column:1/-1}.logwrap{max-height:300px;overflow-y:auto}
+#toast{bottom:26px}.btn:hover{border-color:var(--line2);background:#16203a}
+.foot2{padding-bottom:24px}.foot2 a:hover{color:#99f6e4}}
+@media(max-width:359px){.k4{grid-template-columns:1fr}.hd h1{font-size:1.26rem}}
+</style>
+</head>
+<body>
+<noscript><div style="background:#fff;color:#b91c1c;padding:20px;margin:16px;text-align:center;font-weight:700;border-radius:12px">本遊戲需要啟用 JavaScript。</div></noscript>
+<div class="app">
+<div id="setup">
+ <div class="hd"><h1>啦啦隊人生模擬器</h1><div class="en">C H E E R L I F E</div>
+  <p>「舞台閃耀的背後，是流量聲量的操盤、<br>球團合約的取捨與屬於你的應援傳奇。」</p></div>
+ <div class="body"><div class="stack">
+  <div class="card pad"><label class="lb2" for="nm">主角姓名</label>
+   <div class="row"><input class="inp" id="nm" value="林小葵" maxlength="12" autocomplete="off">
+    <button type="button" class="mini" onclick="genName()">↺ 隨機</button></div></div>
+  <div class="card pad"><div class="ct">天賦成長傾向</div><div class="opts" id="tBox" role="radiogroup"></div></div>
+  <div class="card pad"><div class="ct">生涯目標</div><div class="opts" id="gBox" role="radiogroup"></div></div>
+  <div class="card pad"><label class="lb2" for="seed">世界種子碼</label>
+   <div class="row"><input class="inp" id="seed" maxlength="16" autocomplete="off" spellcheck="false" placeholder="自動抽取">
+    <button type="button" class="mini" onclick="genSeed()">🎲 換</button></div>
+   <div class="note" style="margin-top:9px">種子決定天賦等級與資質上限，但<b style="color:var(--sub)">開局後才會揭曉</b>。相同種子可重現完全相同的一生。</div></div>
+  <button type="button" class="btn go" id="bStart" onclick="startGame()"></button>
+  <button type="button" class="btn cont hide" id="bCont" onclick="loadSave()">▶ 繼續上次進度</button>
+  <div class="note" id="sNote" style="text-align:center"></div>
+ </div></div>
+ <div class="foot2">Produced by <a href="https://www.threads.com/@jarvanthevoyager" target="_blank" rel="noopener noreferrer">jarvanthevoyager</a></div>
+</div>
+<div id="game" class="hide">
+ <div class="bar"><div class="bar1"><div class="av" id="av">葵</div>
+   <div class="who"><b id="wName">林小葵</b><i id="wSub"></i></div>
+   <div class="agebox"><b id="wAge">16</b><i id="wYear">2026 年</i></div></div>
+  <div class="strip">
+   <div class="sc"><b id="mOvr">30</b><i>綜合</i></div><div class="sc"><b id="mMoney">0</b><i>存款萬</i></div>
+   <div class="sc"><b id="mAp">3/3</b><i>行動點</i></div><div class="sc"><b id="mHp">100</b><i>健康</i></div>
+   <div class="sc"><b id="mFan">300</b><i>粉絲</i></div></div>
+  <div class="steps"><div class="sp" id="s0">季初</div><div class="sp" id="s1">賽季</div><div class="sp" id="s2">季末</div></div></div>
+ <div class="body"><div class="cols"><div>
+  <div class="pg on" id="pgMain"><div class="stack">
+   <div class="card team" id="teamCard"><div class="lg" id="tLg">高中舞社</div>
+    <div class="nm" id="tNm">校園熱舞社</div><div class="sd" id="tSide"></div><div class="mt" id="tMeta"></div></div>
+   <div class="card pad evt"><span class="tag" id="eTag">季初</span>
+    <h2 id="eTitle" aria-live="polite">載入中…</h2><div class="ds" id="eDesc" aria-live="polite"></div>
+    <div class="res" id="rBox" aria-live="polite"><div class="dc" id="rDice"></div>
+     <div class="sy" id="rText"></div><div class="cs" id="rChips"></div></div>
+    <canvas id="cardPrev"></canvas>
+    <div class="picks" id="cBox"></div></div></div></div></div>
+  <div class="pg colR" id="pgStat"><div class="stack">
+   <div class="card kpi"><div class="ring"><svg width="84" height="84" viewBox="0 0 84 84">
+     <circle cx="42" cy="42" r="36" fill="none" stroke="#0a1020" stroke-width="8"/>
+     <circle cx="42" cy="42" r="36" fill="none" stroke="url(#rg)" stroke-width="8" stroke-linecap="round"
+      id="arc" stroke-dasharray="226" stroke-dashoffset="226"/>
+     <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ec4899"/>
+      <stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+    <div class="in"><b id="kOvr">30</b><i>OVR</i></div></div>
+    <div class="k4"><div class="kc"><b id="kMoney">0</b><i>存款（萬）</i></div>
+     <div class="kc"><b id="kAp">3/3</b><i>行動點</i></div>
+     <div class="kc"><b id="kFan">300</b><i>大眾粉絲</i></div>
+     <div class="kc"><b id="kLoy">100</b><i>死忠粉</i></div></div></div>
+   <div class="card pad"><div class="ct">身心狀態</div><div class="bars" id="vBars"></div></div>
+   <div class="card pad"><div class="ct">六維能力</div><div class="radar"><svg id="rad" viewBox="0 0 200 184"></svg></div>
+    <div class="attrs" id="aList"></div></div>
+   <div class="card pad"><div class="ct">行動點來源</div><div class="bdgs" id="apSrc"></div></div>
+   <div class="card pad"><div class="ct">生涯目標</div><div class="goal" id="goalCard"></div>
+    <div class="ct" style="margin-top:15px">劇情線進度</div><div class="chain" id="chainBox"></div></div>
+   <div class="card pad"><div class="ct">身分與稱號</div><div class="bdgs" id="bdgs"></div></div></div></div>
+  <div class="pg" id="pgLog"><div class="stack">
+   <div class="card pad"><div class="ct">生涯歷程</div><div class="logwrap" id="logBox"></div></div>
+   <button type="button" class="btn ghost" onclick="restartLife()">↺ 清除存檔並重新開始</button></div></div>
+ </div></div>
+ <div class="foot2">Produced by <a href="https://www.threads.com/@jarvanthevoyager" target="_blank" rel="noopener noreferrer">jarvanthevoyager</a></div>
+ <nav class="nav"><button class="nb on" id="n1" onclick="go(1)"><em>🎭</em>舞台</button>
+  <button class="nb" id="n2" onclick="go(2)"><em>📊</em>狀態</button>
+  <button class="nb" id="n3" onclick="go(3)"><em>📜</em>歷程</button></nav>
+</div></div>
+<div id="toast"></div>
+<div id="mask"><div class="dlg"><h3 id="dTitle"></h3><p id="dMsg"></p>
+ <div class="r"><button type="button" class="no" id="dNo">取消</button>
+  <button type="button" class="yes" id="dYes">確定</button></div></div></div>
+<script>
+/* ============================================================
+   啦啦隊人生模擬器
+   五級種子｜訓練連段｜現實收入｜隊伍配色｜終局傳奇線
+   合約期挖角｜韓國返台｜跨運動兼任｜自製確認視窗｜生涯卡片 PNG
+   ============================================================ */
+const SK='CheerLife_Save',SDK='CheerLife_LastSeed',VER=100;
+const AK=['stamina','dance','charm','host','social','acro'];
+const AN={stamina:'體能',dance:'舞蹈',charm:'魅力',host:'主持',social:'社群',acro:'特技'};
+const AI={stamina:'🏃',dance:'💃',charm:'⭐',host:'🎤',social:'📱',acro:'🤸'};
+const T=(i,v)=>{const e=document.getElementById(i);if(e)e.textContent=v;};
+const H=(i,v)=>{const e=document.getElementById(i);if(e)e.innerHTML=v;};
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const clamp=(v,lo=0,hi=100)=>Math.max(lo,Math.min(hi,v));
+const CFG={startAge:16,startYear:2026,maxAge:42,gradAge:18,floor:10,hardCap:80,absCap:84,retireMin:22};
+
+/* 自製確認視窗（取代 window.confirm） */
+function ask(title,msg,onYes,yesTxt,noTxt){
+ const m=document.getElementById('mask');T('dTitle',title);T('dMsg',msg);
+ const y=document.getElementById('dYes'),n=document.getElementById('dNo');
+ y.textContent=yesTxt||'確定';n.textContent=noTxt||'取消';
+ const close=()=>{m.classList.remove('on');y.onclick=null;n.onclick=null;};
+ y.onclick=()=>{close();onYes&&onYes();};n.onclick=close;
+ m.classList.add('on');}
+
+const TC={"台中猛瑪應援團":['#d97706','#fbbf24'],"新北特攻女孩":['#ea580c','#fdba74'],
+"新北騎士應援團":['#1d4ed8','#60a5fa'],"台北勇士女孩":['#2563eb','#93c5fd'],
+"高雄神鵰應援團":['#0891b2','#67e8f9'],"台南獵鷹女孩":['#0e7490','#22d3ee'],
+"台北恐龍應援團":['#b91c1c','#f87171'],"台北飛龍女孩":['#dc2626','#fca5a5'],
+"府城雄獅應援團":['#be185d','#f9a8d4'],"港都鐵魂女孩":['#9d174d','#f472b6'],
+"桃園金剛應援團":['#15803d','#4ade80'],"台北鯨華應援隊":['#0369a1','#38bdf8'],
+"高雄電流應援隊":['#7c3aed','#c4b5fd'],"台中連莊應援隊":['#ca8a04','#fde047'],
+"新北纖維應援隊":['#047857','#6ee7b7'],"新竹風城獅妹":['#9a3412','#fb923c'],
+"台中夢想女孩":['#a21caf','#e879f9'],"首爾英雄 Cheer":['#7f1d1d','#fca5a5'],
+"起亞老虎 Cheer":['#991b1b','#f87171'],"釜山巨人 Dancers":['#1e3a8a','#93c5fd'],
+"三星獅 Girls":['#1d4ed8','#bfdbfe'],"斗山熊 Cheer":['#172554','#60a5fa'],
+"LG雙子 Girls":['#9f1239','#fda4af'],"SSG登陸者 Dancers":['#b91c1c','#fecaca'],
+"NC恐龍 Cheer":['#134e4a','#5eead4'],"KT巫師 Girls":['#111827','#9ca3af'],
+"韓華鷹 Dancers":['#c2410c','#fdba74'],"亞洲聯合應援隊":['#b45309','#fcd34d']};
+const tCol=n=>TC[n]||null;
+const GROUPS=[
+ {id:"jinxiang",name:"金象金融集團",cpbl:"台中猛瑪應援團",tpbl:"新北特攻女孩",style:"黃潮親和系"},
+ {id:"banglan",name:"邦藍金控集團",cpbl:"新北騎士應援團",tpbl:"台北勇士女孩",style:"藍白時尚系"},
+ {id:"yingyang",name:"鷹揚重工集團",cpbl:"高雄神鵰應援團",tpbl:"台南獵鷹女孩",style:"韓系清新系"},
+ {id:"longhun",name:"龍魂企業集團",cpbl:"台北恐龍應援團",tpbl:"台北飛龍女孩",style:"紅潮熱情系"},
+ {id:"shiba",name:"獅霸食品集團",cpbl:"府城雄獅應援團",tpbl:"港都鐵魂女孩",style:"日系甜美系"},
+ {id:"taoyuan",name:"桃猿娛樂集團",cpbl:"桃園金剛應援團",tpbl:null,style:"娛樂寫真系"}];
+const INDIE=[{name:"新竹風城獅妹",style:"都會潮流系"},{name:"台中夢想女孩",style:"性感活力系"}];
+const VOLLEY=["台北鯨華應援隊","高雄電流應援隊","台中連莊應援隊","新北纖維應援隊"];
+const KOREA=["首爾英雄 Cheer","起亞老虎 Cheer","釜山巨人 Dancers","三星獅 Girls","斗山熊 Cheer",
+ "LG雙子 Girls","SSG登陸者 Dancers","NC恐龍 Cheer","KT巫師 Girls","韓華鷹 Dancers"];
+const TYPES={
+ dancer:{name:"💃 主舞型",desc:"專精舞台舞蹈與拍點節奏",bonus:{dance:12,stamina:5,charm:2,host:-3,social:-2,acro:0}},
+ visual:{name:"✨ 門面型",desc:"鏡頭死角極少，聲量起步高",bonus:{charm:12,social:5,dance:2,host:0,stamina:-3,acro:-4}},
+ host:{name:"🎤 主持型",desc:"控場與臨場應變極強",bonus:{host:12,charm:5,social:3,dance:-2,stamina:-2,acro:-4}},
+ acro:{name:"🤸 特技型",desc:"掌握高難度空翻與體操",bonus:{acro:15,stamina:8,dance:2,charm:-3,host:-5,social:-5}},
+ social:{name:"📱 社群型",desc:"熟悉短影音與社群密碼",bonus:{social:12,charm:5,host:3,dance:-2,stamina:-2,acro:-4}}};
+const LG={
+ highschool:{name:"高中舞社",req:0,mo:0,fee:0,gm:0,live:0,baseFans:300,amateur:1,school:1,sport:'-',c1:'#3b82f6',c2:'#60a5fa'},
+ university:{name:"大學／體大",req:0,mo:0,fee:.35,gm:18,live:5,baseFans:800,amateur:1,sport:'-',c1:'#0891b2',c2:'#22d3ee'},
+ freelance:{name:"社會接案",req:0,mo:0,fee:.8,gm:34,live:14,baseFans:1500,amateur:1,sport:'-',c1:'#0d9488',c2:'#2dd4bf'},
+ tvl:{name:"TVL 職排",req:30,mo:2.6,fee:.25,gm:28,live:17,baseFans:1200,first:2,renew:2,rank:1,sport:'volley',sn:'排球',c1:'#0284c7',c2:'#38bdf8'},
+ indieball:{name:"半職業籃球",req:34,mo:3.2,fee:.3,gm:32,live:19,baseFans:3000,first:2,renew:2,rank:2,sport:'basket',sn:'籃球',c1:'#ea580c',c2:'#fb923c'},
+ tpbl:{name:"TPBL／PLG 職籃",req:40,mo:4.5,fee:.45,gm:38,live:23,baseFans:5000,first:3,renew:3,rank:3,sport:'basket',sn:'籃球',c1:'#7c3aed',c2:'#a78bfa'},
+ cpbl:{name:"CPBL 職棒",req:52,mo:6,fee:.6,gm:55,live:27,baseFans:15000,first:2,renew:3,rank:4,sport:'base',sn:'棒球',c1:'#dc2626',c2:'#fbbf24'},
+ korea:{name:"韓國應援",req:68,mo:11,fee:.9,gm:60,live:38,baseFans:30000,first:2,renew:2,rank:5,sport:'kbo',sn:'韓職',c1:'#db2777',c2:'#f472b6'},
+ asia:{name:"亞洲聯合舞台",req:72,mo:16,fee:1.5,gm:46,live:48,baseFans:80000,first:2,renew:2,rank:6,sport:'asia',sn:'亞洲',c1:'#b45309',c2:'#fcd34d'}};
+const GOALS={
+ diva:{name:"👑 天后之路",desc:"粉絲 20 萬 ＋ 登上 CPBL 主題日 C 位",chk:s=>s.fans>=200000&&s.flags.cpblC},
+ loyal:{name:"🏠 安穩長青",desc:"同一支隊伍待滿 8 年並圓滿引退",chk:s=>s.flags.vet8},
+ rich:{name:"💰 財富自由",desc:"生涯總收入達 1500 萬元",chk:s=>s.careerIncome>=1500},
+ world:{name:"🌏 跨海挑戰",desc:"成功登陸韓國應援舞台",chk:s=>s.flags.korea},
+ second:{name:"🎓 二度人生",desc:"30 歲前主動引退並成功轉職",chk:s=>s.retireAge&&s.retireAge<30&&s.second&&s.second!=='daily'}};
+const SEED_TIER=[
+ {k:-1,n:'苦命種子',ic:'💀',start:-6,cap:-8,floor:0,cls:'bd-r',
+  say:'體檢報告我看完了……你確定要走這條路？',ab:'🔥 不服輸：行動點 +1、恢復效率 +30%'},
+ {k:0,n:'平凡種子',ic:'⚪',start:0,cap:0,floor:0,cls:'bd-s',say:'底子中規中矩，剩下的看你願意練多少。',ab:''},
+ {k:1,n:'天才種子',ic:'🌟',start:8,cap:8,floor:0,cls:'bd-g',say:'這孩子的節奏感，是天生的。',ab:'📈 悟性：所有訓練成長 +1'},
+ {k:2,n:'神童種子',ic:'💎',start:14,cap:12,floor:74,cls:'bd-p',say:'十年才會出現一個這樣的身體。',ab:'📈 悟性 ＋ 🚀 早熟（20 歲前訓練 +2）'},
+ {k:3,n:'百年一遇',ic:'👑',start:20,cap:16,floor:79,cls:'bd-k',say:'我帶了三十年，沒見過這種身體。',ab:'📈 悟性 ＋ 🚀 早熟 ＋ 📡 星探雷達'}];
+const TIER_CUT=[.10,.57,.82,.96];
+const POT_BASE={dance:64,charm:64,stamina:60,social:60,host:58,acro:56};
+function tierIdx(r){for(let i=0;i<TIER_CUT.length;i++)if(r<TIER_CUT[i])return i;return 4;}
+function TI(){return SEED_TIER[(S.flags.tier??1)];}
+const gradeOf=c=>c>=79?'S':c>=74?'A':c>=68?'B':c>=60?'C':'D';
+const capShown=k=>!!(S.flags.capShown&&S.flags.capShown[k]);
+function tryReveal(k){if(capShown(k))return false;
+ if(S[k]>=cap(k)-6){S.flags.capShown[k]=1;return true;}return false;}
+function newState(){return{name:"林小葵",seed:"",prng:12345,type:"dancer",goal:"diva",
+ age:CFG.startAge,year:CFG.startYear,phase:0,
+ phName:["季初：訓練與規劃","賽季中：舞台與事件","季末：總結與抉擇"],
+ lg:"highschool",team:"校園熱舞社",group:null,pos:"社團成員",tc1:null,tc2:null,
+ sideLg:null,sideTeam:null,sideYr:0,sideC1:null,sideC2:null,
+ years:0,contract:0,midStep:0,winStep:0,apGiven:false,
+ stamina:30,dance:30,charm:30,host:20,social:20,acro:15,
+ pot:{stamina:80,dance:80,charm:80,host:80,social:80,acro:80},
+ health:100,fatigue:10,stress:10,troll:0,
+ fans:300,loyalFans:100,money:0,careerIncome:0,rings:0,
+ reputation:50,clubRel:0,dual:false,dualTeam:null,
+ ap:3,maxAp:3,ended:false,retireAge:null,second:null,
+ lastK:null,streak:0,rot:[],inc:null,
+ tick:0,lastSeen:{},seen:{},chain:{rival:0,mentor:0,spon:0,tboss:0},flags:{},logs:[]};}
+let S=newState();
+function mb32(){S.prng=(S.prng+0x6D2B79F5)|0;let t=S.prng;t=Math.imul(t^t>>>15,t|1);
+ t^=t+Math.imul(t^t>>>8,t|7);return((t^t>>>14)>>>0)/4294967296;}
+function initSeed(s){let h=0;for(let i=0;i<s.length;i++)h=(h<<5)-h+s.charCodeAt(i)|0;S.prng=Math.abs(h)||12345;}
+const rnd=()=>mb32(),d20=()=>Math.floor(rnd()*20)+1,d4=()=>Math.floor(rnd()*4)+1;
+const rr=(a,b)=>a+Math.floor(rnd()*(b-a+1)),pick=a=>a[Math.floor(rnd()*a.length)];
+const rankAdj=()=>Math.round((LG[S.lg].rank||0)*1.2);
+const DF=b=>b+rankAdj();
+function chk(k,base){const df=DF(base),dc=d20(),v=S[k],b=Math.round(v/4),t=dc+b;
+ return{ok:t>=df,txt:`判定 ${dc} ＋ ${AN[k]} ${v}（+${b}）＝ ${t}　vs 難度 ${df}${rankAdj()?`（含階級 +${rankAdj()}）`:''} → ${t>=df?'✔ 成功':'✘ 失敗'}`};}
+function cap(k){return clamp(S.pot[k]||CFG.hardCap,10,CFG.absCap);}
+function addA(k,d){const c=cap(k),b=S[k];S[k]=clamp(S[k]+d,CFG.floor,Math.max(c,b));return S[k]-b;}
+let FXP=[];const push=(t,k)=>FXP.push({t,k});
+function fx(o){const p=[];
+ AK.forEach(k=>{if(o[k]){const g=addA(k,o[k]);
+  if(g){p.push(`${AN[k]}${g>0?'+':''}${g}`);push(`${AI[k]} ${AN[k]} ${g>0?'+':''}${g}`,g>0?'up':'dn');}
+  else if(o[k]>0){p.push(`${AN[k]}已達上限`);push(`${AN[k]} 已達天花板`,'neu');}}});
+ if(o.fans){S.fans=Math.max(0,S.fans+o.fans);p.push(`大眾粉絲${o.fans>0?'+':''}${o.fans}`);push(`粉絲 ${o.fans>0?'+':''}${o.fans}`,'fan');
+  if(o.fans>0&&o.loyal===undefined){const b=Math.round(o.fans*.04*(1+.1*Math.min(S.years,8)));
+   if(b>0){S.loyalFans+=b;p.push(`死忠粉+${b}`);}}}
+ if(o.loyal){S.loyalFans=Math.max(0,S.loyalFans+o.loyal);p.push(`死忠粉${o.loyal>0?'+':''}${o.loyal}`);push(`死忠粉 ${o.loyal>0?'+':''}${o.loyal}`,'fan');}
+ if(o.loyalPct){const d=Math.round(S.loyalFans*o.loyalPct);S.loyalFans=Math.max(0,S.loyalFans+d);p.push(`死忠粉${d>0?'+':''}${d}`);push(`死忠粉 ${d>0?'+':''}${d}`,d>0?'fan':'dn');}
+ if(o.money){S.money+=o.money;if(o.money>0)S.careerIncome+=o.money;p.push(`資金${o.money>0?'+':''}${o.money}萬`);push(`💰 ${o.money>0?'+':''}${o.money} 萬`,'mon');}
+ if(o.rep){S.reputation=clamp(S.reputation+o.rep);p.push(`口碑${o.rep>0?'+':''}${o.rep}`);push(`🏅 口碑 ${o.rep>0?'+':''}${o.rep}`,o.rep>0?'up':'dn');}
+ if(o.troll){S.troll=clamp(S.troll+o.troll);p.push(`黑粉${o.troll>0?'+':''}${o.troll}`);push(`🔥 黑粉 ${o.troll>0?'+':''}${o.troll}`,o.troll>0?'dn':'up');}
+ if(o.stress){S.stress=clamp(S.stress+o.stress);p.push(`壓力${o.stress>0?'+':''}${o.stress}`);push(`🧠 壓力 ${o.stress>0?'+':''}${o.stress}`,o.stress>0?'dn':'up');}
+ if(o.fat){S.fatigue=clamp(S.fatigue+o.fat);p.push(`疲勞${o.fat>0?'+':''}${o.fat}`);push(`⚡ 疲勞 ${o.fat>0?'+':''}${o.fat}`,o.fat>0?'dn':'up');}
+ if(o.hp){S.health=clamp(S.health+o.hp);p.push(`健康${o.hp>0?'+':''}${o.hp}`);push(`❤️ 健康 ${o.hp>0?'+':''}${o.hp}`,o.hp>0?'up':'dn');}
+ if(o.rel&&!isAma()){S.clubRel=clamp(S.clubRel+o.rel,-50,50);p.push(`球團關係${o.rel>0?'+':''}${o.rel}`);push(`🤝 關係 ${o.rel>0?'+':''}${o.rel}`,o.rel>0?'up':'dn');}
+ return p.join('、');}
+const SL='ABCDEFGHJKLMNPQRSTUVWXYZ',SD='23456789',SC=SL+SD;
+function rollSeed(){let s='';for(let i=0;i<8;i++)s+=SC[Math.floor(Math.random()*SC.length)];
+ if(!/[2-9]/.test(s))s=s.slice(0,3)+SD[Math.floor(Math.random()*8)]+s.slice(4);
+ if(!/[A-Z]/.test(s))s=SL[Math.floor(Math.random()*24)]+s.slice(1);return s;}
+function genSeed(){let l='';try{l=localStorage.getItem(SDK)||'';}catch(e){}
+ let s=rollSeed();for(let i=0;i<8&&s===l;i++)s=rollSeed();
+ try{localStorage.setItem(SDK,s);}catch(e){}const e=document.getElementById('seed');if(e)e.value=s;return s;}
+function genName(){const a=['林','陳','黃','張','李','王','吳','劉','蔡','楊','許','鄭','謝','郭','洪','曾','廖','賴'],
+ b=['小葵','心怡','雅婷','詩涵','安琪','雨柔','羽萱','語晴','佳穎','瑄瑄','婷婷','子晴','夢凡','佩蓁','筠筠','芷琳','咪咪','可可','亮亮','艾莉','妮妮','朵拉','莎莎','晨曦','芮希','甜甜'];
+ document.getElementById('nm').value=a[Math.floor(Math.random()*a.length)]+b[Math.floor(Math.random()*b.length)];}
+const isSchool=k=>!!(LG[k||S.lg]||{}).school, isAma=k=>!!(LG[k||S.lg]||{}).amateur;
+const isHS=()=>isSchool()&&S.age<CFG.gradAge;
+const grade=()=>S.age<=16?"高一":S.age===17?"高二":"高三";
+const stage=()=>isSchool()?'school':(isAma()?'amateur':'pro');
+const ovr=()=>Math.round(S.stamina*.18+S.dance*.27+S.charm*.22+S.host*.10+S.social*.15+S.acro*.08);
+const rv=()=>S.flags.rivalName||'資深學姐';
+const sportOf=k=>(LG[k]||{}).sport||'-';
+
+/* 行動點 */
+function apCalc(){let n=3;const p=[],m=[];
+ if(S.stamina>=60){n++;p.push('體能 60 +1');}
+ if(S.stamina>=75){n++;p.push('體能 75 +1');}
+ if(S.flags.captain){n++;p.push('隊長權限 +1');}
+ if(S.flags.vet5){n++;p.push('元老自主 +1');}
+ if(S.flags.replan){n++;p.push('生涯規劃 +1');}
+ if(S.flags.hard){n++;p.push('不服輸 +1');}
+ if(S.health>=95&&S.fatigue<=20){n++;p.push('巔峰狀態 +1');}
+ if(S.money>=200){n++;p.push('私人團隊 +1');}
+ if(S.flags.apBuyYear===S.year){n++;p.push('加購時段 +1');}
+ if(S.sideLg){n--;m.push('兼任兩隊 −1');}
+ if(S.fatigue>=70){n--;m.push('疲勞 −1');}
+ if(S.fatigue>=88){n--;m.push('過勞 −1');}
+ if(S.health<=50){n--;m.push('健康不佳 −1');}
+ if(S.stress>=80){n--;m.push('高壓 −1');}
+ if(S.age>=33){n--;m.push('年齡 −1');}
+ if(S.age>=38){n--;m.push('高齡 −1');}
+ if(S.flags.chronic&&S.age>=32){n--;m.push('舊傷 −1');}
+ return{n:clamp(n,1,7),plus:p,minus:m};}
+
+/* 訓練 */
+const FN=['','I','II','III'];
+function trainBuff(k){let b=0;const s=[];
+ if(S.flags.mentorDone&&k==='dance'){b++;s.push('師承');}
+ if(S.flags.coachCert&&k==='host'){b++;s.push('教練證');}
+ if((S.flags.overseas||S.flags.korea)&&k==='acro'){b++;s.push('海外經歷');}
+ if(S.flags.actress&&k==='charm'){b++;s.push('戲劇歷練');}
+ if(S.flags.bizOk&&k==='social'){b++;s.push('品牌經營');}
+ if(S.flags.vet5&&k==='stamina'){b++;s.push('元老體質');}
+ if(S.sideLg&&(k==='stamina'||k==='dance')){b++;s.push('雙隊實戰');}
+ if((S.flags.tier??1)>=2){b++;s.push('悟性');}
+ return{b,s};}
+function combo(k){if(k===S.lastK){const n=S.streak+1;return{kind:'f',lv:Math.min(3,n-1),n};}
+ const nl=S.rot.includes(k)?1:S.rot.length+1;
+ return{kind:'r',lv:nl>=6?3:nl>=5?2:nl>=3?1:0,n:nl};}
+function comboTag(k){const c=combo(k);return c.lv?`${c.kind==='f'?'專注':'全能'} ${FN[c.lv]} +${c.lv}`:'';}
+function applyCombo(k){if(k===S.lastK){S.streak++;S.rot=[k];}
+ else{S.streak=1;if(S.rot.includes(k))S.rot=[k];else S.rot.push(k);}S.lastK=k;}
+function trainMod(k){const c=combo(k),tb=trainBuff(k);let m=0;const src=[];
+ if(S[k]<40){m++;src.push('成長期 +1');}
+ if(c.lv){m+=c.lv;src.push(`${c.kind==='f'?'專注':'全能'} ${FN[c.lv]} +${c.lv}`);}
+ if(S.flags.early&&S.age<20){m+=2;src.push('早熟 +2');}
+ if(tb.b){m+=tb.b;src.push(`${tb.s.join('／')} +${tb.b}`);}
+ if(S.fatigue>=60){m--;src.push('疲勞過高 −1');}
+ if(S.flags.chronic&&(k==='acro'||k==='stamina')){m--;src.push('舊傷 −1');}
+ return{m,src,c};}
+function doTrain(k){const t=trainMod(k),roll=d4();let g=Math.max(1,roll+t.m),crit=false,brk=false;
+ if(roll===4&&rnd()<.45){g+=2;crit=true;}
+ if(S[k]>=cap(k)&&cap(k)<CFG.absCap&&roll===4&&rnd()<.30){S.pot[k]=Math.min(CFG.absCap,cap(k)+1);brk=true;}
+ applyCombo(k);
+ const ex={dance:{fat:rr(7,11),stress:rr(2,4)},stamina:{fat:rr(7,11)},charm:{fat:rr(5,8),stress:rr(1,3)},
+  host:{fat:rr(4,8)},social:{fat:rr(5,9),fans:rr(900,1600)},acro:{fat:rr(9,13),hp:-rr(2,4)}}[k];
+ if(t.c.kind==='f'&&t.c.lv)ex.fat=(ex.fat||0)+t.c.lv*2;
+ let awake=null;
+ if(t.c.kind==='r'&&t.c.n>=6){awake=fx({stamina:1,dance:1,charm:1,host:1,social:1,acro:1,stress:-8});S.rot=[k];}
+ return{g,crit,brk,awake,src:t.src,ex};}
+
+/* 收入（含兼任隊） */
+function taxOf(g){const t=[[54,.05],[121,.12],[242,.2],[453,.3],[1e9,.4]];
+ let last=0,tax=0;for(const[c,r]of t){if(g<=last)break;tax+=(Math.min(g,c)-last)*r;last=c;}return Math.round(tax);}
+function settleIncome(){const L=LG[S.lg],o=ovr(),jit=()=>rr(92,109)/100;
+ const base=Math.round(L.mo*12*(0.85+o/150)*jit());
+ const fee=Math.round(L.fee*L.gm*(0.9+o/200)*jit());
+ let sd=0;if(S.sideLg){const B=LG[S.sideLg];
+  sd=Math.round((B.mo*12*0.55+B.fee*B.gm*0.8)*(0.85+o/160)*jit());}
+ let end=Math.round((S.fans/10000)*(0.5+S.charm/120)*(0.7+S.reputation/150)*rr(8,14)/10);
+ if(S.troll>=50)end=Math.round(end*0.6);
+ if(S.flags.sponDeal)end=Math.round(end*1.25);
+ let gross=base+fee+sd+end;
+ if(S.dual)gross=Math.round(gross*1.35);
+ const ag=Math.round(gross*(isAma()?.08:.15)),tax=taxOf(gross-ag);
+ const live=Math.round(L.live*(1+(LG[S.lg].rank||0)*.03)*jit());
+ const net=gross-ag-tax-live;
+ S.money+=net;if(net>0)S.careerIncome+=net;
+ S.inc={base,fee,sd,end,gross,ag,tax,live,net};return S.inc;}
+function incText(){const i=S.inc;if(!i)return'';
+ return `💰 年度收入結算\n　底薪 ${i.base} 萬　出場費 ${i.fee} 萬`
+ +(i.sd?`　兼任隊 ${i.sd} 萬`:'')+`　商演代言 ${i.end} 萬\n`
+ +`　收入合計 ${i.gross} 萬\n　− 經紀抽成 ${i.ag}　− 所得稅 ${i.tax}　− 生活開銷 ${i.live}\n`
+ +`　＝ 實際入袋 ${i.net>=0?'+':''}${i.net} 萬`;}
+
+/* ============================================================ 事件池 */
+const EV=[
+{id:'hs_contest',where:['school'],w:16,cd:2,tag:'sch',title:()=>'🏫 全國高校熱舞大賽登台！',
+ desc:()=>'你們代表學校參加全國高校熱舞大賽！台下坐滿各校學生、家長與舞蹈老師。',
+ ch:()=>[{t:'【飆舞 Solo】爭取高潮段落獨舞',d:`檢定：舞蹈｜難度 ${DF(18)}`,run:()=>{const c=chk('dance',18);
+  return c.ok?{ok:1,calc:c.txt,story:'你的獨舞驚艷全場，評審點名誇讚卡點掌握，獲選賽事優秀舞者！',log:'熱舞大賽 Solo 成功：'+fx({fans:rr(2400,3800),rep:rr(4,7)})}
+  :{ok:0,calc:c.txt,story:'轉圈時稍微失誤，雖然跳完了，心情卻沉了下來…',log:'Solo 小失誤：'+fx({stress:rr(8,13),fat:rr(8,12)})};}},
+ {t:'【隊形配合】專注全隊齊舞流暢度',d:`檢定：體能｜難度 ${DF(16)}`,run:()=>{const c=chk('stamina',16);
+  return c.ok?{ok:1,calc:c.txt,story:'整齊劃一的刀群齊舞獲得滿堂喝采，社團拿下團體佳績！',log:'齊舞成功：'+fx({rep:rr(6,10),stamina:rr(1,3),stress:-rr(4,7)})}
+  :{ok:0,calc:c.txt,story:'比賽後段體能透支，動作慢了半拍…',log:'齊舞勉強完成：'+fx({fat:rr(6,10)})};}},
+ {t:'【後台支援】協助道具與隊友熱身',d:'無風險：口碑、體能小幅提升',run:()=>({ok:1,calc:'幕後功臣',story:'你把大半時間花在後台，隊友都說有你在很安心。',log:'後台支援：'+fx({rep:rr(3,6),stamina:1,loyal:rr(150,320)})})}]},
+{id:'hs_forum',where:['school'],w:12,cd:3,tag:'warn',title:()=>'💬 校園匿名論壇靠北文事件',
+ desc:()=>'匿名板出現貼文吐槽你們熱舞社「練習太吵、佔用川堂、學姐架子大」，討論越燒越大…',
+ ch:()=>[{t:'【發文澄清】說明練習時間與場地規定',d:`檢定：主持｜難度 ${DF(15)}`,run:()=>{const c=chk('host',15);
+  return c.ok?{ok:1,calc:c.txt,story:'你冷靜列出排練時間表與清掃紀錄，成熟態度獲得同學一致認可。',log:'理性澄清：'+fx({social:rr(1,3),rep:rr(4,7),troll:-rr(4,7)})}
+  :{ok:0,calc:c.txt,story:'用字被截圖放大解讀，論戰反而更激烈…',log:'澄清失利：'+fx({stress:rr(6,10),troll:rr(4,7)})};}},
+ {t:'【專心練舞】用實力與禮貌讓大家閉嘴',d:'無風險：舞蹈、體能小幅提升',run:()=>({ok:1,calc:'專注自我',story:'你默默把川堂掃得比誰都乾淨，然後繼續練舞。',log:'專心練習：'+fx({dance:rr(1,3),stamina:1,stress:-rr(2,5)})})}]},
+{id:'hs_senior',where:['school'],w:10,cd:99,once:1,tag:'warn',cond:()=>S.chain.rival===0,
+ title:()=>'😠 學姐的隱形排擠',desc:()=>'社團公演前，一位高三學姐把你排到最後一排，還當眾說「新生別急著搶鏡頭」。',
+ ch:()=>[{t:'【據理力爭】要求依實力甄選位置',d:`檢定：主持｜難度 ${DF(17)}｜結下宿敵`,run:()=>{const c=chk('host',17);
+  S.chain.rival=1;S.flags.rivalName='高三學姐 唐薇';
+  return c.ok?{ok:1,calc:c.txt,story:'你當著指導老師面前提出甄選要求，成功換回前排——但唐薇從此把你視為對手。',log:'爭取成功，結下宿敵「唐薇」：'+fx({rep:rr(5,8),dance:1,stress:rr(6,10)})}
+  :{ok:0,calc:c.txt,story:'你的抗議被說成「不懂輩分」，位置沒換到，還被貼上難相處標籤。',log:'爭取失敗，宿敵線開啟：'+fx({rep:-rr(3,6),stress:rr(10,15)})};}},
+ {t:'【忍下來】站最後一排也要跳到最好',d:'無風險：舞蹈提升、壓力上升｜結下宿敵',run:()=>{S.chain.rival=1;S.flags.rivalName='高三學姐 唐薇';
+  return{ok:1,calc:'隱忍蓄力',story:'你在最後一排把每個動作做到最滿，散場後有觀眾特地問「最後排那個是誰」。',log:'隱忍練功，宿敵線開啟：'+fx({dance:rr(2,4),stress:rr(5,8),loyal:rr(200,420)})};}}]},
+{id:'hs_budget',where:['school'],w:8,cd:5,tag:'sch',title:()=>'💸 社團經費被砍',
+ desc:()=>'學校把熱舞社的服裝經費砍半，隊長急著找辦法補上比賽制服的缺口。',
+ ch:()=>[{t:'【社群募資】拍宣傳片對外募款',d:`檢定：社群｜難度 ${DF(16)}`,run:()=>{const c=chk('social',16);
+  return c.ok?{ok:1,calc:c.txt,story:'募資影片被校友轉爆，制服費一週就湊齊，還多了贊助商。',log:'募資成功：'+fx({social:rr(2,4),fans:rr(1900,3200),rep:rr(4,7)})}
+  :{ok:0,calc:c.txt,story:'影片沒什麼人看，大家只好自掏腰包。',log:'募資失敗：'+fx({money:-rr(1,3),stress:rr(5,8)})};}},
+ {t:'【自己動手】跟隊友熬夜改舊制服',d:'無風險：死忠粉增加',run:()=>({ok:1,calc:'手作情誼',story:'一群人蹲在教室地板上剪布縫亮片到半夜，笑到肚子痛。',log:'手作制服：'+fx({stamina:1,loyal:rr(300,520),fat:rr(4,8),stress:-rr(3,6)})})}]},
+{id:'std_match',where:['pro'],w:14,cd:2,tag:'',title:()=>'🏟️ 萬人應援登場',
+ desc:()=>`你代表【${S.team}】站上應援台，看板前擠滿長焦鏡頭。（出場費於季末統一結算）`,
+ ch:()=>[{t:'【滿功率】高難度動作＋極致熱情',d:'聲量大增｜疲勞、壓力上升｜球團關係提升',
+  run:()=>({ok:1,calc:'滿功率應援：全場沸騰',story:'你把每個八拍都做到極致，成為場邊鏡頭的絕對焦點！',log:'滿功率應援：'+fx({fans:rr(1800,4800),fat:rr(13,18),stress:rr(4,8),rel:rr(2,4)})})},
+ {t:'【標準跳滿】零瑕疵舞蹈與招牌笑容',d:'穩定表現｜疲勞小幅上升',
+  run:()=>({ok:1,calc:'標準應援：穩定完成',story:'動作精準到位，順利完成整場高強度應援。',log:'標準應援：'+fx({fans:rr(900,2400),fat:rr(6,10),rel:rr(1,3)})})},
+ {t:'【互動優先】專心跟前排球迷互動',d:'死忠粉大幅提升｜聲量較低',
+  run:()=>({ok:1,calc:'圈粉路線',story:'你記住了好幾張常來的面孔，還幫小朋友簽了球帽。',log:'互動應援：'+fx({fans:rr(400,1000),loyal:rr(600,1400),rel:rr(3,5),fat:rr(4,8)})})}]},
+/* 🌟 新增：合約期內挖角密會 */
+{id:'tamper',where:['pro'],w:10,cd:4,cond:()=>S.contract>0&&(ovr()>=42||S.fans>=25000),tag:'warn',
+ title:()=>'🕵️ 合約期內的挖角密會',
+ desc:()=>{const t=poachTarget();return `一位不具名的球團幹部在飯店咖啡廳約你見面：「我們知道你還有 ${S.contract} 年約，但${t?`【${t.t}】`:'我們'}願意等，也願意處理違約金。」\n這種接觸在業界並不罕見，但傳出去就是麻煩。`;},
+ ch:()=>{const t=poachTarget(),out=[];
+  if(t)out.push({t:`📝 留下聯絡方式（目標：${t.t}）`,d:'季末將出現挖角報價｜球團關係下降、壓力上升',
+   run:()=>{S.flags.poach={k:t.k,t:t.t,g:t.g,d:t.d,yr:S.year};
+    return{ok:1,calc:'密會結束',story:`你收下了名片。對方說：「季末我們會正式送出報價。」`,
+     log:`與【${t.t}】密會，季末將收到挖角報價：`+fx({rel:-rr(3,7),stress:rr(4,8)})};}});
+  out.push({t:'🙅 當場婉拒並主動報告球團',d:'球團關係大幅提升、口碑提升',
+   run:()=>({ok:1,calc:'忠誠表態',story:'你把整件事告訴總監。他沉默了幾秒，說：「謝謝你告訴我。」',
+    log:'婉拒挖角並回報球團：'+fx({rel:rr(8,14),rep:rr(5,9),stress:-rr(2,5)})})});
+  out.push({t:'🤐 婉拒但不說出去',d:'壓力小幅上升｜維持現狀',
+   run:()=>({ok:1,calc:'保持沉默',story:'你笑著結束談話，回家把名片丟了。這件事只有你知道。',
+    log:'低調婉拒挖角：'+fx({stress:rr(2,6)})})});
+  return out;}},
+/* 🌟 新增：跨運動兼任邀約 */
+{id:'crossport',where:['pro'],w:11,cd:5,cond:()=>canSide()&&sideOffers().length>0,tag:'acc',
+ title:()=>'🔀 另一種球場的邀約',
+ desc:()=>{const o=sideOffers()[0];return `${o?`【${o.t}】（${LG[o.k].sn}）`:'另一個聯盟'}的行銷總監找上你：「你們${LG[S.lg].sn}的球季跟我們錯開，要不要兼任？」\n目前你的球團沒有強制同集團雙棲條款 —— 兼任兩支不同運動的應援隊，法律上完全可行。\n代價是全年幾乎沒有休息期。`;},
+ ch:()=>{const out=sideOffers().slice(0,2).map(o=>({t:`✍️ 兼任【${o.t}】（${LG[o.k].sn}）`,
+   d:'年收入增加、粉絲提升｜行動點 −1、疲勞與壓力長期上升',
+   run:()=>{signSide(o.k,o.t);
+    return{ok:1,calc:`跨運動兼任成立：${S.team} ＋ ${o.t}`,
+     story:`你成為橫跨${LG[S.lg].sn}與${LG[o.k].sn}的雙棲應援員。行李箱從此沒有真正收起來過。`,
+     log:`兼任【${o.t}】（${LG[o.k].sn}）：`+fx({fans:rr(9000,16000),rep:rr(3,7),stress:rr(6,11),fat:rr(6,11)})};}}));
+  out.push({t:'🛌 婉拒，專心經營現在的隊',d:'壓力下降、球團關係提升',
+   run:()=>({ok:1,calc:'專一路線',story:'你選擇把時間留給熟悉的看板與熟悉的球迷。',
+    log:'婉拒跨運動兼任：'+fx({stress:-rr(4,9),rel:rr(3,7)})})});
+  return out;}},
+/* 🌟 新增：兼任兩隊的行程衝突 */
+{id:'clash',where:['pro'],w:12,cd:3,cond:()=>!!S.sideLg,tag:'dgr',
+ title:()=>'⏰ 兩邊球季撞在同一天',
+ desc:()=>`【${S.team}】的主題日與【${S.sideTeam}】的季後賽首戰排在同一天晚上。兩邊的總監都在等你回覆。`,
+ ch:()=>[{t:`🏟️ 以【${S.team}】為優先`,d:'主隊關係提升｜兼任隊聲量損失',
+  run:()=>({ok:1,calc:'主隊優先',story:'你趕完主題日，隔天才向另一邊道歉。對方沒說什麼，但排班少了兩場。',
+   log:'選擇主隊：'+fx({rel:rr(6,11),fans:rr(3000,6000),stress:rr(4,8)})})},
+ {t:`🏀 以【${S.sideTeam}】為優先`,d:'兼任隊聲量大增｜主隊關係下降',
+  run:()=>({ok:1,calc:'兼任隊優先',story:'季後賽的氣氛確實無可取代，但你手機裡有一封沒有回的訊息。',
+   log:'選擇兼任隊：'+fx({fans:rr(8000,14000),rel:-rr(6,11),stress:rr(5,9)})})},
+ {t:'🚕 兩邊都跑，中場趕場',d:`檢定：體能｜難度 ${DF(21)}｜成功兩邊都保住`,
+  run:()=>{const c=chk('stamina',21);
+   if(c.ok)return{ok:1,calc:c.txt,story:'你在計程車上換完裝，兩邊的中場都沒缺席。隔天全身像被拆過一次。',
+    log:'趕場成功：'+fx({fans:rr(12000,19000),rep:rr(6,11),rel:rr(3,7),fat:rr(16,22),stress:rr(6,11)})};
+   return{ok:0,calc:c.txt,story:'你在第二場遲到了十四分鐘，兩邊的總監都看到了。',
+    log:'趕場失敗：'+fx({rel:-rr(8,13),rep:-rr(4,8),fat:rr(14,20),stress:rr(10,16)})};}}]},
+{id:'theme_day',where:['pro'],w:10,cd:4,tag:'acc',title:()=>'🎨 主題日企劃會議',
+ desc:()=>`球團要辦主題日，總監徵求成員提案。這是在【${S.team}】內部刷存在感的好機會。`,
+ ch:()=>[{t:'【提案動漫聯名】自己畫設定圖',d:`檢定：社群｜難度 ${DF(18)}`,run:()=>{const c=chk('social',18);
+  return c.ok?{ok:1,calc:c.txt,story:'你的聯名提案被完整採用，周邊一天完售，總監記住了你的名字。',log:'主題日提案採用：'+fx({fans:rr(7000,11000),rep:rr(6,10),rel:rr(6,10),social:rr(1,3)})}
+  :{ok:0,calc:c.txt,story:'提案被評估成本過高退回，你熬的兩個夜白費了。',log:'提案未過：'+fx({stress:rr(6,10),fat:rr(4,8)})};}},
+ {t:'【主動接下主持棒】擔任主題日 MC',d:`檢定：主持｜難度 ${DF(19)}`,run:()=>{const c=chk('host',19);
+  return c.ok?{ok:1,calc:c.txt,story:'你把冷場的抽獎環節救回來，球迷讚「這 MC 是專業的」。',log:'主題日 MC 成功：'+fx({host:rr(2,4),fans:rr(4800,7500),rep:rr(5,9),rel:rr(4,7)})}
+  :{ok:0,calc:c.txt,story:'流程卡了兩次，你在台上尬笑了很久。',log:'MC 失利：'+fx({stress:rr(8,13),rep:-rr(2,5),host:1})};}},
+ {t:'【低調配合】把主舞位置留給資深',d:'穩健：球團關係、口碑提升',run:()=>({ok:1,calc:'團隊優先',story:'你把最好的段落讓給前輩，散會後總監拍了拍你的肩。',log:'低調配合：'+fx({rel:rr(6,10),rep:rr(4,7),stress:-rr(4,7)})})}]},
+{id:'cpbl_center',where:['pro'],w:12,cd:5,tag:'dgr',cond:()=>S.lg==='cpbl'&&!S.flags.cpblC,
+ title:()=>'⚾ 主題日 C 位搶位戰',
+ desc:()=>`【${S.team}】主題日要選出核心 C 位，你與資深隊員同時被列入名單，全場萬名球迷的鏡頭都對著台上。`,
+ ch:()=>[{t:'【全力展現】爆發卡點搶下 C 位',d:`檢定：舞蹈｜難度 ${DF(20)}｜成功永久解鎖 C 位王牌`,
+  run:()=>{const c=chk('dance',20);
+   if(c.ok){S.flags.cpblC=1;return{ok:1,calc:c.txt,story:'你站上舞台中央爆發驚人氣場，零瑕疵卡點炸翻全場！總監當場宣布你成為主題日固定 C 位。',log:'搶下主題日 C 位：'+fx({fans:rr(22000,30000),loyal:rr(4000,6500),rep:rr(8,12),rel:rr(4,7)})};}
+   return{ok:0,calc:c.txt,story:'高潮段落搶拍失誤，還擋到前排鏡頭，被球迷截圖狂黑。明年還有機會。',log:'搶 C 失敗：'+fx({troll:rr(12,18),rep:-rr(8,12),stress:rr(12,18),rel:-rr(4,7)})};}},
+ {t:'【謙讓副 C】展現團隊情商',d:'口碑、球團關係大幅提升',
+  run:()=>({ok:1,calc:'高情商',story:'你把中央讓給前輩，總監誇你有團隊精神，死忠粉大讚你的 EQ。',log:'謙讓副 C：'+fx({rep:rr(12,18),rel:rr(8,13),loyal:rr(1600,2600),stress:-rr(8,13)})})}]},
+{id:'newbie',where:['pro'],w:9,cd:5,cond:()=>S.years>=1,tag:'warn',title:()=>'🌱 新人來搶位了',
+ desc:()=>'今年報到的新人條件亮眼，社群聲量三個月就追上你，開始有球迷比較你們兩人。',
+ ch:()=>[{t:'【拉她一把】主動帶她熟悉隊呼與走位',d:'口碑、球團關係提升｜培養班底',
+  run:()=>{S.flags.mentored=1;return{ok:1,calc:'前輩風範',story:'你花了整個月陪她練，她在採訪裡說「多虧了學姐」。',log:'帶新人：'+fx({rep:rr(8,13),rel:rr(5,8),loyal:rr(900,1500),fat:rr(6,10)})};}},
+ {t:'【硬碰硬】用實力守住主舞位置',d:`檢定：舞蹈｜難度 ${DF(19)}`,run:()=>{const c=chk('dance',19);
+  return c.ok?{ok:1,calc:c.txt,story:'你在主題日跳出生涯最好的一次，位置穩住了。',log:'守位成功：'+fx({dance:rr(1,3),fans:rr(5500,8500),rep:rr(4,7)})}
+  :{ok:0,calc:c.txt,story:'總監把主舞排給新人，你被調到側翼。',log:'守位失敗：'+fx({rep:-rr(4,7),stress:rr(12,17),rel:-rr(3,6)})};}},
+ {t:'【冷處理】專注自己的行程',d:'低風險：壓力小幅上升',run:()=>({ok:1,calc:'各走各路',story:'你選擇不理隊內比較的聲音，把力氣留給自己的通告。',log:'冷處理隊內競爭：'+fx({stress:rr(3,6),social:1})})}]},
+{id:'captain',where:['pro'],w:8,cd:6,cond:()=>S.years>=2&&!S.flags.captain,tag:'acc',title:()=>'🗳️ 隊長改選',
+ desc:()=>`【${S.team}】要選新任隊長，需負責排練、對外發言與新人管理。當選後可自行安排訓練時段。`,
+ ch:()=>[{t:'【表態參選】爭取隊長職位',d:`檢定：主持｜難度 ${DF(19)}｜當選行動點永久 +1`,run:()=>{const c=chk('host',19);
+  if(c.ok){S.flags.captain=1;return{ok:1,calc:c.txt,story:'你當選了隊長。從今天起，這支隊的排練表由你決定。',log:'當選隊長（行動點 +1）：'+fx({host:rr(2,4),rep:rr(10,15),rel:rr(8,13),stress:rr(8,13)})};}
+  return{ok:0,calc:c.txt,story:'票數差了一點，你成為副隊長。',log:'落選副隊長：'+fx({rep:rr(3,6),stress:rr(5,8)})};}},
+ {t:'【推薦他人】支持資深隊友出任',d:'球團關係提升、壓力下降',run:()=>({ok:1,calc:'樂於配合',story:'你在會上力薦前輩，換來隊內一片和氣。',log:'推薦他人任隊長：'+fx({rel:rr(5,8),rep:rr(2,5),stress:-rr(5,8)})})}]},
+{id:'teammate_hurt',where:['pro'],w:9,cd:5,tag:'warn',title:()=>'🩹 隊友受傷，臨時替補',
+ desc:()=>'主舞在彩排時扭傷腳踝，總監臨時要你頂上今晚的整套編舞——只有三小時記。',
+ ch:()=>[{t:'【硬上】三小時背完整套主舞',d:`檢定：舞蹈｜難度 ${DF(20)}｜高風險`,run:()=>{const c=chk('dance',20);
+  return c.ok?{ok:1,calc:c.txt,story:'你零失誤跳完全場，總監在休息室說：「以後這位置有你的份。」',log:'替補大成功：'+fx({dance:rr(1,3),fans:rr(9500,15000),rep:rr(8,13),rel:rr(8,13),fat:rr(12,17)})}
+  :{ok:0,calc:c.txt,story:'第二段忘了走位，畫面上明顯撞到人。',log:'替補失誤：'+fx({troll:rr(6,10),rep:-rr(3,6),stress:rr(12,17),fat:rr(10,15)})};}},
+ {t:'【誠實回報】建議改跳簡化版',d:'穩健：口碑、球團關係提升',run:()=>({ok:1,calc:'專業判斷',story:'你評估風險後建議改陣，避免了整組出錯，總監接受了。',log:'誠實回報：'+fx({rep:rr(5,8),rel:rr(3,6),host:1})})}]},
+{id:'rival2',where:['pro','amateur'],w:14,cd:99,once:1,tag:'dgr',cond:()=>S.chain.rival===1&&S.age>=23,
+ title:()=>`⚔️ ${rv()}成了對手隊 C 位`,
+ desc:()=>`當年那位${rv()}，如今是對手球團的看板 C 位。這週跨隊聯合公演，你們被排在同一個舞台。`,
+ ch:()=>[{t:'【正面對決】爭高潮段落的鏡頭',d:`檢定：舞蹈｜難度 ${DF(20)}`,run:()=>{const c=chk('dance',20);S.chain.rival=2;
+  if(c.ok){S.flags.rivalWin=1;return{ok:1,calc:c.txt,story:`媒體隔天用「世代交替」形容你的表現。${rv()}散場時只說了一句：「還不錯。」`,log:'對決勝出：'+fx({fans:rr(18000,26000),rep:rr(8,13),dance:1})};}
+  return{ok:0,calc:c.txt,story:`${rv()}的舞台掌控力仍在你之上，剪輯裡你幾乎沒有特寫。`,log:'對決落敗：'+fx({stress:rr(12,17),troll:rr(4,8),dance:1})};}},
+ {t:'【合作提案】主動邀她合跳雙人段',d:`檢定：主持｜難度 ${DF(18)}｜可化敵為友`,run:()=>{const c=chk('host',18);S.chain.rival=2;
+  if(c.ok){S.flags.rivalAlly=1;return{ok:1,calc:c.txt,story:'雙人段成了整場最高潮，兩家球迷都在剪你們的同框。多年心結，就這樣鬆開了。',log:'化敵為友：'+fx({fans:rr(15000,22000),loyal:rr(3200,5000),rep:rr(10,15),stress:-rr(8,13)})};}
+  return{ok:0,calc:c.txt,story:'她拒絕了提案，理由是「我們風格不合」。',log:'合作被拒：'+fx({stress:rr(6,10),rep:rr(1,3)})};}}]},
+{id:'rival3',where:['pro','amateur'],w:16,cd:99,once:1,tag:'acc',cond:()=>S.chain.rival===2&&S.age>=28,
+ title:()=>`🎽 ${rv()}的引退儀式`,
+ desc:()=>`${rv()}宣布引退。儀式最後，她要把跟了她十年的應援大旗交給一個人——名單上有你。`,
+ ch:()=>[{t:'【接下大旗】承接她的應援精神',d:'解鎖專屬稱號｜口碑、死忠粉大幅提升',run:()=>{S.flags.tookFlag=1;S.chain.rival=3;
+  return{ok:1,calc:'傳承：大旗交接完成',story:'她把旗子塞進你懷裡，只說：「當年那個站最後一排的，現在換你站前面了。」全場起立。',log:'接下宿敵的應援大旗：'+fx({rep:rr(12,18),loyal:rr(6500,9500),fans:rr(12000,18000),stress:-rr(12,18)})};}},
+ {t:'【謝絕】旗子該留給她的隊',d:'口碑提升、壓力下降',run:()=>{S.chain.rival=3;
+  return{ok:1,calc:'尊重傳統',story:'你把旗交還給她的隊長，說這是他們的故事。她笑著點頭。',log:'謝絕交旗：'+fx({rep:rr(6,10),stress:-rr(6,10),loyal:rr(1600,2600)})};}}]},
+{id:'mentor1',where:['pro','amateur','school'],w:9,cd:99,once:1,tag:'ok',cond:()=>S.chain.mentor===0&&S.age<=25,
+ title:()=>'👩‍🏫 一位退役總監找上你',
+ desc:()=>'一位帶過三支冠軍應援團的退役總監看了你的影片，願意每週指導你一次，條件是「不准請假」。',
+ ch:()=>[{t:'【拜師】接受高壓特訓',d:'舞蹈、體能提升｜解鎖全部資質數值',run:()=>{S.chain.mentor=1;
+  AK.forEach(k=>S.flags.capShown[k]=1);
+  return{ok:1,calc:'拜師成功',story:'第一堂課她只讓你做一個八拍，做了兩百次。她也把你的體能報告全部攤開來講。',log:'拜入林曼師門下（資質全解鎖）：'+fx({dance:rr(3,5),stamina:rr(1,3),fat:rr(10,15),stress:rr(6,10)})};}},
+ {t:'【婉拒】現在的行程排不下',d:'壓力下降',run:()=>({ok:1,calc:'錯過的機會',story:'你禮貌回絕了。她留了一句：「有空再來。」',log:'婉拒恩師邀約：'+fx({stress:-rr(4,7)})})}]},
+{id:'mentor2',where:['pro','amateur'],w:12,cd:99,once:1,tag:'ok',cond:()=>S.chain.mentor===1&&S.age>=26,
+ title:()=>'📕 恩師的最後一份作業',
+ desc:()=>'林曼師遞給你一本手寫的編舞筆記：「幫我編一支完整的隊呼，下週給整隊看。」',
+ ch:()=>[{t:'【全力編排】把三年所學塞進去',d:`檢定：舞蹈｜難度 ${DF(21)}`,run:()=>{const c=chk('dance',21);S.chain.mentor=2;
+  if(c.ok){S.flags.choreo=1;return{ok:1,calc:c.txt,story:'整隊跳完後沒人說話，林曼師只點了下頭。那支隊呼後來用了五年。',log:'編舞交卷成功：'+fx({dance:rr(2,4),host:rr(1,3),rep:rr(12,17),fans:rr(8000,12000)})};}
+  return{ok:0,calc:c.txt,story:'節奏卡在第三段，她說：「還不夠。回去再想。」',log:'編舞未過：'+fx({stress:rr(8,13),dance:1})};}},
+ {t:'【求救】請隊友一起共創',d:'穩健：口碑、死忠粉提升',run:()=>{S.chain.mentor=2;
+  return{ok:1,calc:'集體創作',story:'你把筆記攤在桌上，六個人吵了三天，最後成品比你原本想的好。',log:'集體共創隊呼：'+fx({rep:rr(5,9),loyal:rr(1600,2600),host:1})};}}]},
+{id:'mentor3',where:['pro','amateur'],w:14,cd:99,once:1,tag:'ok',cond:()=>S.chain.mentor===2&&S.age>=30,
+ title:()=>'🕯️ 恩師退休，位置留給你',
+ desc:()=>'林曼師正式退休，她向球團推薦你兼任「應援指導」，等你將來掛靴後可直接接任總監。',
+ ch:()=>[{t:'【承接】兼任應援指導',d:'解鎖教練路線｜舞蹈訓練永久 +1',run:()=>{S.chain.mentor=3;S.flags.coachTrack=1;S.flags.mentorDone=1;
+  return{ok:1,calc:'薪火相傳',story:'她把那本翻爛的筆記留在你桌上，扉頁寫著：「換你教了。」',log:'承接應援指導（舞蹈訓練 +1）：'+fx({rep:rr(15,21),rel:rr(12,18),host:rr(2,4)})};}},
+ {t:'【專心當舞者】現在還不想退到幕後',d:'舞蹈提升｜舞蹈訓練永久 +1',run:()=>{S.chain.mentor=3;S.flags.mentorDone=1;
+  return{ok:1,calc:'還想再跳',story:'「我還想再跳幾年。」她笑說這才像你。',log:'專注舞者身分（舞蹈訓練 +1）：'+fx({dance:rr(1,3),stress:-rr(4,8)})};}}]},
+{id:'spon1',where:['pro'],w:9,cd:99,once:1,tag:'acc',cond:()=>S.chain.spon===0&&S.charm>=38,
+ title:()=>'🕴️ 贊助商點名要你',desc:()=>'母企業的贊助商在包廂看完比賽後，指名要你擔任新產品的形象代言候選。',
+ ch:()=>[{t:'【接下試鏡】爭取代言',d:`檢定：魅力｜難度 ${DF(18)}`,run:()=>{const c=chk('charm',18);S.chain.spon=1;
+  if(c.ok)return{ok:1,calc:c.txt,story:'試鏡當場定案，你的側臉被放上了整面捷運燈箱。',log:'代言試鏡成功：'+fx({money:rr(28,44),fans:rr(11000,17000),charm:rr(1,3),rep:rr(5,8)})};
+  return{ok:0,calc:c.txt,story:'廠商最後選了別人，理由是「形象再成熟一點就好」。',log:'試鏡未果：'+fx({stress:rr(6,10),charm:1})};}},
+ {t:'【保持距離】婉謝包廂邀約',d:'口碑提升、壓力下降',run:()=>{S.chain.spon=1;
+  return{ok:1,calc:'守住界線',story:'你禮貌拒絕了私下飯局，隊裡的前輩偷偷對你比了個讚。',log:'婉謝金主邀約：'+fx({rep:rr(5,8),stress:-rr(3,6)})};}}]},
+{id:'spon2',where:['pro'],w:11,cd:99,once:1,tag:'acc',cond:()=>S.chain.spon===1&&S.age>=25,
+ title:()=>'💼 集團開出年度代言長約',desc:()=>'集團拿出兩年期的年度代言合約，金額很漂亮，但要求你所有社群內容都要先送審。',
+ ch:()=>[{t:'【簽下長約】拿錢也接受審稿',d:'資金大幅增加｜代言收入永久 +25%、壓力上升',run:()=>{S.chain.spon=2;S.flags.sponDeal=1;
+  return{ok:1,calc:'金主上船',story:'合約蓋章那天，經理說：「以後發文前先傳給我。」',log:'簽下代言長約：'+fx({money:rr(80,112),fans:rr(16000,24000),rep:rr(4,7),stress:rr(8,13)})};}},
+ {t:'【只接單次】保留內容主導權',d:'資金小幅增加、社群提升',run:()=>{S.chain.spon=2;
+  return{ok:1,calc:'留住話語權',story:'你只簽單支影片。廠商有點意外，但也尊重。',log:'僅接單次合作：'+fx({money:rr(22,34),social:rr(1,3),fans:rr(4800,7500)})};}}]},
+{id:'spon3',where:['pro'],w:13,cd:99,once:1,tag:'dgr',cond:()=>S.chain.spon===2&&S.age>=27,
+ title:()=>'🔥 金主爆出弊案',desc:()=>'代言那家集團被查出財報造假，你的燈箱廣告還掛在捷運站，網路開始出現「共犯」標籤。',
+ ch:()=>[{t:'【立刻解約】公開切割並捐出代言費',d:'資金大幅減少｜口碑大增、黑粉大減',run:()=>{S.chain.spon=3;S.flags.sponDeal=0;
+  return{ok:1,calc:'果斷切割',story:'你在記者會上宣布解約並捐出全部代言費，隔天輿論轉向支持。',log:'切割金主：'+fx({money:-rr(38,54),rep:rr(12,18),troll:-rr(16,24),stress:rr(10,15)})};}},
+ {t:'【沉默觀望】等公關部處理',d:'黑粉大增、口碑下降｜保住收入',run:()=>{S.chain.spon=3;
+  return{ok:0,calc:'選擇沉默',story:'你按公關指示不發言，燈箱撤下前的每一天都有人在留言區問「為什麼不說話」。',log:'沉默觀望：'+fx({troll:rr(15,22),rep:-rr(6,10),stress:rr(12,18)})};}}]},
+{id:'tboss1',where:['pro','amateur'],w:11,cd:99,once:1,tag:'dgr',cond:()=>S.chain.tboss===0&&S.troll>=28,
+ title:()=>'🎯 黑粉頭目出現',desc:()=>'一個匿名帳號開始系統性剪你的失誤片段，每週固定發文，追蹤數已經破萬。',
+ ch:()=>[{t:'【正面回應】直播逐條說明',d:`檢定：主持｜難度 ${DF(20)}`,run:()=>{const c=chk('host',20);S.chain.tboss=1;
+  if(c.ok)return{ok:1,calc:c.txt,story:'你開直播把每段影片重播一次並示範正確動作，路人紛紛倒戈。',log:'直播回應成功：'+fx({troll:-rr(15,22),fans:rr(9500,15000),host:rr(1,3)})};
+  return{ok:0,calc:c.txt,story:'直播裡你講到哽住，那段被剪成新的迷因。',log:'直播回應失利：'+fx({troll:rr(10,15),stress:rr(12,18)})};}},
+ {t:'【蒐證備份】默默存檔不回應',d:'壓力上升｜為後續法律行動鋪路',run:()=>{S.chain.tboss=1;
+  return{ok:1,calc:'蒐證中',story:'你建了一個資料夾，把每一則都截圖存好。時候未到。',log:'開始蒐證：'+fx({stress:rr(6,10)})};}}]},
+{id:'tboss2',where:['pro','amateur'],w:13,cd:99,once:1,tag:'dgr',cond:()=>S.chain.tboss===1&&S.troll>=35,
+ title:()=>'📮 個資被公開了',desc:()=>'那個帳號貼出你的住處巷口照片與航班資訊，留言區開始有人揚言「去現場堵人」。',
+ ch:()=>[{t:'【報警＋球團公關同步處理】',d:'資金減少｜黑粉下降、口碑提升',run:()=>{S.chain.tboss=2;
+  return{ok:1,calc:'正式立案',story:'球團法務陪你走進警局，當晚就發出律師函。那個帳號沉寂了。',log:'報警處理騷擾：'+fx({money:-rr(9,16),troll:-rr(12,18),rep:rr(6,10),rel:rr(4,8),stress:rr(6,10)})};}},
+ {t:'【自行搬家】不想把事情鬧大',d:'資金減少、壓力大增',run:()=>{S.chain.tboss=2;
+  return{ok:0,calc:'選擇退讓',story:'你三天內搬了家，行李還沒拆完就要趕去彩排。',log:'自行搬家：'+fx({money:-rr(18,28),stress:rr(15,22),hp:-rr(6,10)})};}}]},
+{id:'tboss3',where:['pro','amateur'],w:15,cd:99,once:1,tag:'ok',cond:()=>S.chain.tboss===2&&S.age>=27,
+ title:()=>'⚖️ 開庭日',desc:()=>'案子進到法院。對方的律師主張「這只是體育評論」。你手上有兩年的截圖存檔。',
+ ch:()=>[{t:'【出庭作證】把兩年的資料全交出去',d:'黑粉大幅下降、口碑大增',run:()=>{S.chain.tboss=3;S.flags.wonCase=1;
+  return{ok:1,calc:'勝訴',story:'判決下來的那天，你在法院外對鏡頭說：「不要習慣被這樣對待。」很多人轉了這句話。',log:'勝訴：'+fx({troll:-rr(30,40),rep:rr(15,22),fans:rr(16000,24000),loyal:rr(4000,6000),stress:-rr(16,24)})};}},
+ {t:'【接受和解】拿道歉聲明結案',d:'資金增加、黑粉下降、壓力下降',run:()=>{S.chain.tboss=3;
+  return{ok:1,calc:'和解結案',story:'對方發了三百字的道歉聲明。你按下封鎖，關掉電腦。',log:'和解結案：'+fx({money:rr(11,19),troll:-rr(15,22),stress:-rr(10,15),rep:rr(4,8)})};}}]},
+{id:'club_cut',where:['pro'],w:7,cd:8,cond:()=>S.years>=2,tag:'dgr',title:()=>'📉 母企業縮編應援預算',
+ desc:()=>`【${S.team}】的母企業宣布縮減行銷支出，應援團人數要砍三分之一，名單下週公布。`,
+ ch:()=>[{t:'【提生存企劃】用聲量證明價值',d:`檢定：社群｜難度 ${DF(19)}`,run:()=>{const c=chk('social',19);
+  if(c.ok)return{ok:1,calc:c.txt,story:'你做的成效報表讓行銷部改變主意，裁員名單縮到兩人，你不在上面。',log:'保住編制：'+fx({social:rr(1,3),rep:rr(8,13),rel:rr(10,15)})};
+  return{ok:0,calc:c.txt,story:'報表沒能說服高層，你被列入觀察名單。',log:'列入觀察名單：'+fx({stress:rr(13,19),rel:-rr(6,10)})};}},
+ {t:'【主動減薪】換取全隊保留',d:'資金減少｜球團關係、口碑大增',run:()=>({ok:1,calc:'共體時艱',story:'你帶頭同意減薪，整隊一個都沒少。休息室裡有人偷偷哭了。',log:'主動減薪護隊：'+fx({money:-rr(22,34),rel:rr(15,21),rep:rr(12,17),loyal:rr(2400,3800)})})}]},
+{id:'parent_scandal',where:['pro'],w:6,cd:9,tag:'warn',title:()=>'📰 母企業高層醜聞',
+ desc:()=>'母企業高層被爆出不當言論，球迷開始在應援時舉抗議標語，記者堵在球員通道問你的看法。',
+ ch:()=>[{t:'【表態支持球迷】呼籲球團正面回應',d:'口碑大增、球團關係下降',
+  run:()=>({ok:0,calc:'站在球迷這邊',story:'你說「球迷的聲音應該被聽見」，聲量炸開，但總監把你叫進辦公室。',log:'公開表態：'+fx({rep:rr(12,17),loyal:rr(4000,6000),rel:-rr(12,17),stress:rr(8,13)})})},
+ {t:'【回應僅談球隊】不評論企業層面',d:'球團關係提升、黑粉上升',
+  run:()=>({ok:1,calc:'專業分界',story:'你只談應援與球隊，記者拿不到想要的標題。',log:'僅談球隊：'+fx({rel:rr(6,10),troll:rr(4,8),host:1})})}]},
+{id:'live_slip',where:['pro','amateur'],w:9,cd:5,tag:'warn',title:()=>'🎙️ 直播失言',
+ desc:()=>'深夜直播聊到累，你脫口說了一句對對手球迷不太禮貌的玩笑，隔天上了熱搜。',
+ ch:()=>[{t:'【24 小時內完整道歉】',d:`檢定：主持｜難度 ${DF(17)}`,run:()=>{const c=chk('host',17);
+  return c.ok?{ok:1,calc:c.txt,story:'你不推責、不裝可愛，逐句說明並道歉。輿論反而稱讚處理成熟。',log:'道歉獲認可：'+fx({troll:-rr(9,15),rep:rr(4,8),host:1})}
+  :{ok:0,calc:c.txt,story:'道歉文被說「像公關代筆」，火反而更旺。',log:'道歉失利：'+fx({troll:rr(11,17),rep:-rr(4,8),stress:rr(10,15)})};}},
+ {t:'【刪片沉默】等熱度自然消退',d:'黑粉上升、壓力上升',run:()=>({ok:0,calc:'冷處理',story:'你刪了直播檔，但截圖早就傳遍各大論壇。',log:'刪片沉默：'+fx({troll:rr(8,13),stress:rr(4,8)})})}]},
+{id:'stalker',where:['pro','amateur'],w:7,cd:7,tag:'dgr',title:()=>'🚪 粉絲越線',
+ desc:()=>'一位常來前排的球迷開始等在你家樓下，還把你的作息拍成「觀察日記」發在論壇上。',
+ ch:()=>[{t:'【走正式流程】通報球團與警方',d:'口碑提升、資金小幅減少｜損害較小',
+  run:()=>({ok:1,calc:'依規處理',story:'球團派車接送三個月，對方收到警告後停止了行為。',log:'通報處理：'+fx({rep:rr(6,10),rel:rr(3,6),stress:rr(6,10),money:-rr(4,9)})})},
+ {t:'【私下勸說】親自請他不要再來',d:'風險高：壓力大增、健康下降',
+  run:()=>({ok:0,calc:'親自處理',story:'對話沒有想像中順利，你回家後把門鎖檢查了三次。',log:'私下勸說失利：'+fx({stress:rr(15,22),hp:-rr(4,8),troll:rr(2,6)})})}]},
+{id:'fanart',where:['pro','amateur','school'],w:8,cd:5,tag:'ok',title:()=>'🎨 二創爆紅',
+ desc:()=>'一位繪師把你的招牌動作畫成漫畫，一天轉了三萬次，留言全在問「這是誰」。',
+ ch:()=>[{t:'【官方轉發＋致謝】並邀請聯名',d:'粉絲大幅提升、社群提升',
+  run:()=>({ok:1,calc:'接住這波',story:'你轉發並附上手寫感謝，繪師感動落淚，之後成了你的固定應援繪師。',log:'二創聯名：'+fx({fans:rr(13000,20000),loyal:rr(2000,3200),social:rr(1,3),rep:rr(4,7)})})},
+ {t:'【模仿漫畫動作拍短片】',d:`檢定：社群｜難度 ${DF(16)}`,run:()=>{const c=chk('social',16);
+  return c.ok?{ok:1,calc:c.txt,story:'你把漫畫的誇張分鏡真人重現，影片比原作還紅。',log:'還原二創爆紅：'+fx({fans:rr(20000,29000),social:rr(2,4),charm:1})}
+  :{ok:0,calc:c.txt,story:'拍出來的效果有點尷尬，熱度沒接上。',log:'還原效果平平：'+fx({fans:rr(1400,2800),fat:rr(3,7)})};}}]},
+{id:'deepfake',where:['pro','amateur'],w:7,cd:8,cond:()=>S.fans>=15000,tag:'dgr',title:()=>'🤖 被 AI 換臉',
+ desc:()=>'有人用你的臉做了 AI 換臉影片在境外站流傳，經紀部說「要不要處理都由你決定」。',
+ ch:()=>[{t:'【公開說明並提告】',d:'資金減少｜口碑大增、黑粉下降',
+  run:()=>({ok:1,calc:'正面處理',story:'你錄了一支冷靜的說明影片，同業紛紛聲援，平台下架了全部內容。',log:'提告換臉：'+fx({money:-rr(11,19),rep:rr(12,17),troll:-rr(9,15),fans:rr(7000,11000),stress:rr(8,13)})})},
+ {t:'【不看不理】交給法務慢慢走',d:'壓力大增、黑粉上升',
+  run:()=>({ok:0,calc:'選擇不看',story:'你把手機交給助理管三天。有些東西看了就回不去了。',log:'交由法務：'+fx({stress:rr(11,17),troll:rr(4,8)})})}]},
+{id:'gossip',where:['pro','amateur'],w:9,cd:4,tag:'warn',title:()=>'📸 八卦頭條同框偷拍',
+ desc:()=>'狗仔拍到你與某位球星私下聚餐的照片，八卦新聞登上娛樂版熱搜。',
+ ch:()=>[{t:'【大方回應】公開當天大合照',d:`檢定：社群｜難度 ${DF(18)}`,run:()=>{const c=chk('social',18);
+  return c.ok?{ok:1,calc:c.txt,story:'你貼出十二人的大合照，坦蕩程度讓球迷讚賞，風波當天平息。',log:'澄清成功：'+fx({fans:rr(4800,7500),troll:-rr(4,8)})}
+  :{ok:0,calc:c.txt,story:'部分死忠粉吃醋退追，黑粉趁機加碼。',log:'澄清不順：'+fx({troll:rr(8,13),loyal:-rr(450,800),stress:rr(4,8)})};}},
+ {t:'【不予置評】不給炒作空間',d:'黑粉微幅上升',run:()=>({ok:1,calc:'冷處理',story:'兩天後熱度被別的新聞蓋過去了。',log:'冷處理八卦：'+fx({troll:rr(2,5)})})}]},
+{id:'troll_wave',where:['pro','amateur'],w:8,cd:4,cond:()=>S.troll>=18,tag:'warn',title:()=>'💬 論壇出征洗版',
+ desc:()=>'論壇出現質疑你「舞蹈划水、表情僵硬」的洗版文章，黑粉指數持續飆升。',
+ ch:()=>[{t:'【高 EQ 自嘲】拍幽默短影音回應',d:`檢定：主持｜難度 ${DF(19)}`,run:()=>{const c=chk('host',19);
+  return c.ok?{ok:1,calc:c.txt,story:'你自嘲卡拍的短片大獲好評，黑粉紛紛轉為路人粉。',log:'公關成功：'+fx({fans:rr(12000,18000),troll:-rr(12,18),host:1})}
+  :{ok:0,calc:c.txt,story:'網友說你「硬要搞笑」，酸文更多了。',log:'公關失利：'+fx({troll:rr(8,13),stress:rr(6,10)})};}},
+ {t:'【關留言專心練舞】',d:'無風險：舞蹈提升、黑粉下降',run:()=>({ok:1,calc:'專注自我',story:'你關掉留言區，在教室練到深夜，爭議隨時間冷卻。',log:'冷處理＋練功：'+fx({dance:rr(1,3),stamina:1,troll:-rr(8,13)})})}]},
+{id:'acl',where:['pro','amateur','school'],w:7,cd:9,cond:()=>S.fatigue>=45,tag:'dgr',title:()=>'🦵 膝關節韌帶拉傷',
+ desc:()=>'落地時膝蓋一陣刺痛。醫生說「不是很嚴重，但要休」——問題是下週有主題日。',
+ ch:()=>[{t:'【聽醫生的】休養兩個月',d:'健康回升、疲勞大減｜聲量下滑',
+  run:()=>({ok:1,calc:'正確選擇',story:'你缺席了整個月的活動，回來時位置被別人站著，但膝蓋沒事了。',log:'依醫囑休養：'+fx({hp:rr(12,18),fat:-rr(26,34),stress:rr(4,8),fans:-rr(3000,5000),rel:-rr(2,5)})})},
+ {t:'【打止痛硬撐】不缺席任何一場',d:'保住聲量｜健康大減、永久舊傷',
+  run:()=>{S.flags.chronic=1;return{ok:0,calc:'硬撐上場',story:'你撐完了整季。從那年開始，天氣一變膝蓋就會提醒你這個決定。',log:'硬撐留下舊傷：'+fx({hp:-rr(18,26),acro:-rr(1,3),fans:rr(6500,9500),rep:rr(4,8),stress:rr(10,15)})};}}]},
+{id:'eating',where:['pro','amateur'],w:6,cd:9,cond:()=>S.stress>=40,tag:'dgr',title:()=>'🍽️ 體重管理的壓力',
+ desc:()=>'球團給了新的體態標準。你已經三週沒吃過正常的晚餐，排練時開始眼前發黑。',
+ ch:()=>[{t:'【求助專業】找運動營養師',d:'資金減少｜健康、壓力大幅改善',
+  run:()=>({ok:1,calc:'科學調整',story:'營養師重排了你的菜單，體重沒變但體脂降了，跳起來更輕。',log:'營養師介入：'+fx({money:-rr(7,12),hp:rr(15,21),stress:-rr(15,21),stamina:1})})},
+ {t:'【硬撐標準】達標最重要',d:'健康大減、壓力大增',
+  run:()=>({ok:0,calc:'硬撐',story:'你達標了。合照上笑得很好看，沒人看得出你在廁所扶著牆。',log:'硬撐體態標準：'+fx({hp:-rr(15,21),stress:rr(13,19),stamina:-1,charm:1})})}]},
+{id:'back',where:['pro','amateur'],w:6,cd:8,cond:()=>S.age>=26,tag:'warn',title:()=>'🩻 腰傷復發',
+ desc:()=>'連續三個主場後，你早上起床要花五分鐘才能站直。',
+ ch:()=>[{t:'【療程＋調整動作難度】',d:'資金減少｜健康回升、疲勞下降',
+  run:()=>({ok:1,calc:'務實調整',story:'你把兩個高風險動作換成低衝擊版本，觀眾其實看不出差別。',log:'調整動作＋療程：'+fx({money:-rr(6,11),hp:rr(11,17),fat:-rr(16,24)})})},
+ {t:'【貼上肌貼繼續跳原版】',d:'聲量提升｜健康下降、壓力上升',
+  run:()=>({ok:0,calc:'咬牙上場',story:'原版動作的掌聲確實比較大。',log:'硬跳原版：'+fx({hp:-rr(11,17),stress:rr(8,13),fans:rr(4800,7500)})})}]},
+{id:'panic',where:['pro','amateur'],w:6,cd:9,cond:()=>S.stress>=55,tag:'dgr',title:()=>'😶‍🌫️ 上場前的恐慌',
+ desc:()=>'進場前你在通道裡突然喘不上氣，手抖得握不住彩球。這是這個月第三次。',
+ ch:()=>[{t:'【告知球團並安排休賽】',d:'壓力大幅下降、健康回升｜球團關係下降',
+  run:()=>({ok:1,calc:'誠實面對',story:'球團安排你休兩週並接了心理諮商。回來後你發現自己還在。',log:'誠實求助：'+fx({stress:-rr(26,34),hp:rr(8,13),rel:-rr(3,6),fans:-rr(1400,2800)})})},
+ {t:'【誰都不說】自己吞下去',d:'壓力大增、健康下降',
+  run:()=>({ok:0,calc:'獨自撐著',story:'你學會了在通道裡數呼吸。沒有人知道。',log:'獨自硬撐：'+fx({stress:rr(15,22),hp:-rr(8,13)})})}]},
+{id:'dating',where:['pro','amateur'],w:7,cd:8,cond:()=>S.age>=22&&!S.flags.dating,tag:'acc',title:()=>'💗 一段悄悄開始的關係',
+ desc:()=>'同隊工作人員追了你半年。球團沒有明文禁止戀愛，但也從來沒鼓勵過。',
+ ch:()=>[{t:'【交往並低調處理】',d:'壓力下降、健康回升｜曝光後有風險',run:()=>{S.flags.dating=1;
+  return{ok:1,calc:'有人接你下班',story:'你開始有人陪吃宵夜。壓力表上的數字，第一次自己往下掉。',log:'開始交往：'+fx({stress:-rr(11,17),hp:rr(6,10),charm:1})};}},
+ {t:'【專注生涯】現在不想分心',d:'舞蹈提升、壓力小幅上升',run:()=>({ok:1,calc:'現在還不是時候',story:'你把那句話婉轉地說完，然後回到練習室。',log:'專注生涯：'+fx({dance:rr(1,3),stress:rr(3,6)})})}]},
+{id:'dating_out',where:['pro','amateur'],w:9,cd:6,cond:()=>S.flags.dating&&!S.flags.datingOut,tag:'warn',
+ title:()=>'📷 戀情曝光',desc:()=>'你們一起走出住處的照片被拍到，登上娛樂版。留言區吵成兩派。',
+ ch:()=>[{t:'【公開承認】並請大家尊重隱私',d:'口碑提升｜部分死忠粉流失',run:()=>{S.flags.datingOut=1;
+  return{ok:1,calc:'坦然公開',story:'你貼了一張兩人的手部合照，只寫「請對他溫柔一點」。大多數人祝福了。',log:'公開戀情：'+fx({rep:rr(6,10),loyalPct:-0.12,fans:rr(6500,9500),stress:-rr(4,8)})};}},
+ {t:'【否認到底】說只是朋友',d:'黑粉大增、壓力大增',run:()=>{S.flags.datingOut=1;
+  return{ok:0,calc:'選擇否認',story:'第二週更清楚的照片出現了。這次沒人相信你。',log:'否認失敗：'+fx({troll:rr(11,17),stress:rr(13,19),rep:-rr(4,8)})};}}]},
+{id:'family',where:['pro','amateur','school'],w:6,cd:8,cond:()=>S.age<=26,tag:'warn',title:()=>'🏠 家人的反對',
+ desc:()=>'年夜飯上，長輩再一次問：「跳舞能跳到幾歲？什麼時候找個正經工作？」',
+ ch:()=>[{t:'【帶家人到現場看一次】',d:`檢定：魅力｜難度 ${DF(17)}`,run:()=>{const c=chk('charm',17);
+  if(c.ok){S.flags.familyOk=1;return{ok:1,calc:c.txt,story:'散場後媽媽紅著眼說：「原來有這麼多人喜歡你。」',log:'家人理解：'+fx({stress:-rr(18,26),rep:rr(3,6),loyal:rr(1200,1900)})};}
+  return{ok:0,calc:c.txt,story:'他們全程沒說話，回家路上只提了一句「太吵了」。',log:'家人仍不諒解：'+fx({stress:rr(10,15)})};}},
+ {t:'【暫時不談】把話題轉開',d:'壓力上升',run:()=>({ok:0,calc:'避開話題',story:'你笑著幫大家添飯，把那句話留在碗底。',log:'避開家庭話題：'+fx({stress:rr(6,10)})})}]},
+{id:'peer_quit',where:['pro','amateur'],w:7,cd:7,cond:()=>S.age>=25&&!S.flags.replan,tag:'warn',title:()=>'💍 同期結婚退隊',
+ desc:()=>'和你同年進隊的好友宣布結婚並退出應援團。她在群組裡問：「你還要跳幾年？」',
+ ch:()=>[{t:'【幫她辦一場退隊儀式】',d:'口碑、死忠粉提升｜壓力下降',
+  run:()=>({ok:1,calc:'好好說再見',story:'你統籌了整場儀式，全隊在中場為她跳最後一支。她哭得不成樣子。',log:'籌辦退隊儀式：'+fx({rep:rr(6,10),loyal:rr(2000,3200),stress:-rr(8,13),host:1})})},
+ {t:'【重新檢視自己的規劃】',d:'壓力上升｜行動點永久 +1',run:()=>{S.flags.replan=1;
+  return{ok:1,calc:'想清楚了一點',story:'你列了一張表，寫下自己還想達成的三件事。',log:'重新規劃生涯（行動點 +1）：'+fx({stress:rr(4,8)})};}}]},
+{id:'allstar',where:['pro'],w:10,cd:4,cond:()=>S.fans>=18000,tag:'acc',goal:'diva',title:()=>'🌟 全明星賽 Dance Battle',
+ desc:()=>'你憑高人氣入選全明星賽，南北兩隊在場中央展開舞力對決，輪到你上場。',
+ ch:()=>[{t:'【飆舞 Solo】招牌炸場獨舞',d:`檢定：舞蹈｜難度 ${DF(20)}｜爭 MVP`,run:()=>{const c=chk('dance',20);
+  return c.ok?{ok:1,calc:c.txt,story:'媒體隔天寫「明星賽最美舞姿」，你拿下啦啦隊 MVP。',log:'明星賽 MVP：'+fx({fans:rr(20000,28000),rep:rr(8,13),dance:1})}
+  :{ok:0,calc:c.txt,story:'動作有些卡拍，沒能搶下焦點。',log:'明星賽表現平平：'+fx({stress:rr(8,13),fans:rr(2800,5200)})};}},
+ {t:'【團隊帶動】引導全場齊聲應援',d:'無風險：粉絲、口碑提升',
+  run:()=>({ok:1,calc:'控場高手',story:'你把全場情緒推上最高峰，轉播導播整段沒切鏡頭。',log:'帶動全場：'+fx({fans:rr(7500,11000),rep:rr(4,7),host:1})})}]},
+{id:'drama',where:['pro','amateur'],w:8,cd:6,cond:()=>S.charm>=42,tag:'acc',title:()=>'🎬 戲劇試鏡邀約',
+ desc:()=>'一部運動題材影集要找「真的會跳的人」演女二，經紀部把試鏡通知轉給你。',
+ ch:()=>[{t:'【認真備稿去試鏡】',d:`檢定：魅力｜難度 ${DF(19)}｜成功後魅力訓練 +1`,run:()=>{const c=chk('charm',19);
+  if(c.ok){S.flags.actress=1;return{ok:1,calc:c.txt,story:'你拿到了角色。殺青那天導演說：「你的眼神很像真的在比賽。」',log:'試鏡成功（魅力訓練 +1）：'+fx({money:rr(44,68),fans:rr(22000,31000),charm:rr(2,4),rep:rr(6,10),fat:rr(10,15)})};}
+  return{ok:0,calc:c.txt,story:'台詞的部分明顯生硬，角色給了科班演員。',log:'試鏡未錄取：'+fx({charm:1,stress:rr(6,10)})};}},
+ {t:'【只接舞蹈替身】專心本業',d:'資金增加、舞蹈提升',
+  run:()=>({ok:1,calc:'專業替身',story:'你只負責舞蹈鏡頭，收工快、酬勞穩，還被工作人員稱讚敬業。',log:'擔任舞蹈替身：'+fx({money:rr(14,23),dance:1,fans:rr(3800,6200)})})}]},
+{id:'exchange',where:['pro'],w:9,cd:6,cond:()=>ovr()>=45,tag:'acc',goal:'world',title:()=>'✈️ 日韓交流賽應援團',
+ desc:()=>'聯盟選派代表赴韓參加交流賽的聯合應援，名額三人，需要能跟當地團對拍的實力。',
+ ch:()=>[{t:'【爭取名額】提交自選曲影片',d:`檢定：舞蹈｜難度 ${DF(19)}｜成功後特技訓練 +1`,run:()=>{const c=chk('dance',19);
+  if(c.ok){S.flags.overseas=1;return{ok:1,calc:c.txt,story:'你在首爾的球場跳完後，對方的舞蹈總監要了你的聯絡方式。',log:'入選海外交流（特技訓練 +1）：'+fx({fans:rr(15000,22000),rep:rr(8,13),dance:rr(1,3),acro:1})};}
+  return{ok:0,calc:c.txt,story:'影片沒進最後三人，你留在國內看轉播。',log:'交流賽未入選：'+fx({stress:rr(6,10),dance:1})};}},
+ {t:'【專攻特技段】爭取疊人塔位置',d:`檢定：特技｜難度 ${DF(18)}`,run:()=>{const c=chk('acro',18);
+  if(c.ok){S.flags.overseas=1;return{ok:1,calc:c.txt,story:'你在頂端完成雙腳離手的動作，全場尖叫。這段被剪進聯盟年度回顧。',log:'特技入選交流賽：'+fx({acro:rr(2,4),fans:rr(11000,17000),rep:rr(6,10)})};}
+  return{ok:0,calc:c.txt,story:'重心沒抓穩，教練換了人上。',log:'特技試選失敗：'+fx({acro:1,stress:rr(6,10),hp:-rr(2,6)})};}}]},
+{id:'scout_kr',where:['pro','amateur'],w:10,cd:99,once:1,tag:'acc',goal:'world',
+ cond:()=>!S.flags.krScout&&!S.flags.krRadar&&ovr()>=56&&S.age<=27,
+ title:()=>'📡 韓國球團星探坐進了看台',
+ desc:()=>'一位 KBO 球團的星探連續三場出現在同一個位置。散場後他遞來一張名片：「我們在找能立刻上場的人。」',
+ ch:()=>[{t:'【留下聯絡方式】接受海外評估',d:`檢定：舞蹈｜難度 ${DF(18)}｜成功後韓國粉絲門檻降至 6 萬`,
+  run:()=>{const c=chk('dance',18);
+   if(c.ok){S.flags.krScout=1;return{ok:1,calc:c.txt,story:'兩週後你收到一份試訓影片清單。星探說：「合約到期那年，我們會來。」',log:'通過韓國星探評估（粉絲門檻降至 6 萬）：'+fx({rep:rr(6,10),fans:rr(4800,7500),dance:1})};}
+   return{ok:0,calc:c.txt,story:'他客氣地收回名片：「再練一年，我還會來。」',log:'星探評估未過：'+fx({dance:1,stress:rr(4,8)})};}},
+ {t:'【專心國內】婉謝名片',d:'口碑提升、壓力下降',run:()=>({ok:1,calc:'留在熟悉的球場',story:'你笑著把名片收進口袋，沒有回電。',log:'婉謝韓國星探：'+fx({rep:rr(4,7),stress:-rr(4,8)})})}]},
+/* 🌟 新增：在韓國思鄉 */
+{id:'homesick',where:['pro'],w:10,cd:4,cond:()=>(S.lg==='korea'||S.lg==='asia')&&S.years>=1,tag:'warn',
+ title:()=>'🏠 異鄉的第三個冬天',
+ desc:()=>`首爾下雪了。你在便利商店拿起一罐熟悉牌子的飲料，才發現自己已經很久沒有用母語跟人聊天。\n台灣的球團仍不時傳來訊息問你的合約狀況。`,
+ ch:()=>[{t:'🇹🇼 開始評估返台的可能',d:'季末將出現返台邀約｜壓力下降',
+  run:()=>{S.flags.wantHome=1;
+   return{ok:1,calc:'萌生返台念頭',story:'你請經紀人開始接觸台灣的球團。他說：「你回去一定有人要。」',
+    log:'決定評估返台（季末將出現返台邀約）：'+fx({stress:-rr(6,11)})};}},
+ {t:'🌏 留下來，把海外經歷做滿',d:'口碑提升、特技提升｜壓力上升',
+  run:()=>({ok:1,calc:'繼續留在海外',story:'你報名了當地的舞蹈進修班，用不流利的韓語跟老師吵了一次編排。',
+   log:'留在海外深造：'+fx({rep:rr(6,11),acro:rr(1,3),dance:rr(1,2),stress:rr(5,9)})})},
+ {t:'📞 每週固定跟家人視訊',d:'壓力大幅下降、健康回升',
+  run:()=>({ok:1,calc:'撐住的方法',story:'你把視訊排進行程表，像對待彩排一樣認真。',
+   log:'固定與家人視訊：'+fx({stress:-rr(12,18),hp:rr(4,8)})})}]},
+{id:'sci_test',where:['pro','amateur'],w:9,cd:6,cond:()=>S.age>=21&&AK.some(k=>!capShown(k)),tag:'ok',
+ title:()=>'🩺 年度運動科學檢測',
+ desc:()=>'體育大學實驗室開放名額，可透過動作捕捉與肌力測試量化你的天賦上限——但要自費。',
+ ch:()=>[{t:'【完整檢測】解鎖三個未知軸的資質數值',d:'費用 6 萬｜體能提升',
+  run:()=>{if(S.money<6){const s=fx({stamina:1,stress:-rr(2,5)});
+    return{ok:0,calc:'資金不足 6 萬',story:'你付不出檢測費，只做了免費的基礎體測。',log:'僅做基礎體測：'+s};}
+   const un=AK.filter(k=>!capShown(k)).slice(0,3);un.forEach(k=>S.flags.capShown[k]=1);
+   const s=fx({money:-6,stamina:1});
+   return{ok:1,calc:'檢測報告出爐',story:'報告上清楚寫著你的天賦邊界：'+un.map(k=>`${AN[k]} ${cap(k)}`).join('、')+'。',
+    log:`運動科學檢測，解鎖 ${un.map(k=>AN[k]).join('／')} 資質：`+s};}},
+ {t:'【只做基礎項目】省下檢測費',d:'體能提升、壓力下降',
+  run:()=>({ok:1,calc:'基礎體測',story:'你只做了體脂與柔軟度，數字還可以。',log:'基礎體測：'+fx({stamina:1,stress:-rr(2,6)})})}]},
+{id:'fashion',where:['pro','amateur'],w:7,cd:6,cond:()=>S.charm>=45,tag:'acc',title:()=>'👗 時尚週後台邀約',
+ desc:()=>'一個新銳品牌邀你走秋冬系列的壓軸，條件是要學會他們指定的台步。',
+ ch:()=>[{t:'【接下壓軸】兩週練台步',d:`檢定：魅力｜難度 ${DF(18)}`,run:()=>{const c=chk('charm',18);
+  return c.ok?{ok:1,calc:c.txt,story:'你走完全場零失誤，時尚媒體用「運動員的骨架」形容你。',log:'時尚週壓軸成功：'+fx({money:rr(20,32),charm:rr(2,4),fans:rr(13000,19000),rep:rr(4,8)})}
+  :{ok:0,calc:c.txt,story:'高跟鞋在轉身時卡了一下，照片被放大檢視。',log:'時尚週失誤：'+fx({charm:1,troll:rr(6,10),stress:rr(8,13),money:rr(8,15)})};}},
+ {t:'【只接靜態拍攝】穩穩拿酬勞',d:'資金增加、魅力小幅提升',
+  run:()=>({ok:1,calc:'穩健選擇',story:'棚拍四小時收工，成品你自己很滿意。',log:'接下靜態拍攝：'+fx({money:rr(11,18),charm:1,fans:rr(2800,5200)})})}]},
+{id:'esports',where:['pro','amateur'],w:7,cd:6,cond:()=>S.social>=40,tag:'acc',title:()=>'🎮 電競賽事應援',
+ desc:()=>'電競聯盟總決賽要辦中場表演，觀眾組成跟球場完全不同，主辦要你「懂梗」。',
+ ch:()=>[{t:'【客製梗舞】研究社群做專屬企劃',d:`檢定：社群｜難度 ${DF(19)}`,run:()=>{const c=chk('social',19);
+  return c.ok?{ok:1,calc:c.txt,story:'你把選手招牌動作編進舞裡，彈幕整片刷「這也太懂」。',log:'電競應援大成功：'+fx({money:rr(15,26),fans:rr(24000,33000),social:rr(2,4),host:1})}
+  :{ok:0,calc:c.txt,story:'梗用錯了版本，彈幕出現「查一下再來吧」。',log:'電競應援失利：'+fx({troll:rr(8,13),money:rr(8,14),stress:rr(6,10)})};}},
+ {t:'【照常演出】跳最熟的招牌曲',d:'資金增加、粉絲提升',
+  run:()=>({ok:1,calc:'安全牌',story:'表演順利，反應中規中矩。',log:'電競場照常演出：'+fx({money:rr(9,16),fans:rr(4800,7500),fat:rr(4,8)})})}]},
+{id:'radio',where:['pro','amateur'],w:8,cd:5,cond:()=>S.host>=35,tag:'ok',title:()=>'📻 電台常駐邀約',
+ desc:()=>'一檔運動廣播節目要找固定嘉賓，每週一次，是練口條的好機會。',
+ ch:()=>[{t:'【固定常駐】每週上節目',d:'主持大幅提升、資金增加｜疲勞上升',
+  run:()=>({ok:1,calc:'口條磨練',story:'半年後你已經能穩穩接住主持人的所有丟球。',log:'電台常駐：'+fx({host:rr(2,4),money:rr(8,15),fans:rr(3800,6200),fat:rr(6,10)})})},
+ {t:'【單次特別嘉賓】',d:'主持小幅提升、粉絲增加',
+  run:()=>({ok:1,calc:'單次上節目',story:'一次三十分鐘，聊得比想像中順。',log:'單次電台嘉賓：'+fx({host:1,fans:rr(1900,3200)})})}]},
+{id:'opening',where:['pro'],w:8,cd:5,tag:'acc',title:()=>'⚾ 開球儀式的空翻',
+ desc:()=>'球團想在開球儀式安排一段空翻入場，需要一個敢做後手翻連接的人。',
+ ch:()=>[{t:'【自願上場】做後手翻連接',d:`檢定：特技｜難度 ${DF(18)}`,run:()=>{const c=chk('acro',18);
+  return c.ok?{ok:1,calc:c.txt,story:'你在投手丘前完成連續三個後手翻，全場「哇」聲不斷。',log:'開球空翻成功：'+fx({acro:rr(2,4),fans:rr(10000,16000),rep:rr(4,8),rel:rr(3,6)})}
+  :{ok:0,calc:c.txt,story:'落地時撐了一下手，畫面有點狼狽。',log:'開球空翻失手：'+fx({acro:1,hp:-rr(4,8),stress:rr(6,10)})};}},
+ {t:'【改設計安全版本】用彩帶編排',d:'特技小幅提升、口碑與球團關係提升',
+  run:()=>({ok:1,calc:'務實編排',story:'你設計了一段彩帶開場，效果好又零風險，球團很滿意。',log:'彩帶開場企劃：'+fx({acro:1,rep:rr(4,7),rel:rr(3,6),fans:rr(2800,5200)})})}]},
+{id:'pyramid',where:['pro','school'],w:8,cd:5,tag:'',title:()=>'🤸 疊人塔挑戰',
+ desc:()=>'隊裡想在總冠軍賽做三層疊人塔，缺一個敢站頂端的人。',
+ ch:()=>[{t:'【站頂端】挑戰三層塔頂',d:`檢定：特技｜難度 ${DF(19)}`,run:()=>{const c=chk('acro',19);
+  return c.ok?{ok:1,calc:c.txt,story:'你在最高點張開雙臂，全場快門聲連成一片。這張照片成了年度代表照。',log:'疊人塔頂成功：'+fx({acro:rr(3,5),fans:rr(12000,18000),rep:rr(6,10),loyal:rr(2400,3800)})}
+  :{ok:0,calc:c.txt,story:'重心偏了，整座塔安全解散，但心裡的坎留下了。',log:'疊人塔失敗：'+fx({acro:1,stress:rr(10,15),hp:-rr(3,7)})};}},
+ {t:'【當底層支撐】把最穩的位置守好',d:'體能、特技提升、口碑提升',
+  run:()=>({ok:1,calc:'最穩的底盤',story:'沒有鏡頭拍你，但整座塔靠你站著。隊友都知道。',log:'擔任底層支撐：'+fx({stamina:rr(1,3),acro:1,rep:rr(4,8),loyal:rr(1200,1900),fat:rr(6,10)})})}]},
+{id:'interview',where:['pro','amateur'],w:9,cd:4,tag:'',title:()=>'🎤 賽前轉播訪問',
+ desc:()=>'轉播單位要在賽前做三分鐘的 live 訪問，全國都看得到。',
+ ch:()=>[{t:'【主動接下】即席回答',d:`檢定：主持｜難度 ${DF(16)}`,run:()=>{const c=chk('host',16);
+  return c.ok?{ok:1,calc:c.txt,story:'你的回答被剪成短片瘋傳，主播誇你「口條比很多藝人好」。',log:'live 訪問成功：'+fx({host:rr(1,3),fans:rr(6500,9500),rep:rr(4,8)})}
+  :{ok:0,calc:c.txt,story:'你緊張到把主播名字叫錯，那段被做成表情包。',log:'live 訪問失誤：'+fx({host:1,troll:rr(4,8),stress:rr(8,13)})};}},
+ {t:'【背稿版本】照公關準備的講',d:'口碑、主持小幅提升',
+  run:()=>({ok:1,calc:'安全過關',story:'四平八穩地講完，沒有亮點也沒有失誤。',log:'背稿受訪：'+fx({rep:rr(2,5),host:1})})}]},
+{id:'charity',where:['pro','amateur','school'],w:8,cd:5,tag:'ok',title:()=>'🤝 偏鄉舞蹈公益營',
+ desc:()=>'公益團體邀你到偏鄉帶三天的舞蹈營，無償，但會有紀錄片團隊隨行。',
+ ch:()=>[{t:'【全程參與】帶完三天',d:'口碑大增、死忠粉提升｜疲勞上升',
+  run:()=>({ok:1,calc:'真心的三天',story:'最後一天孩子們跳給你看，你在鏡頭前哭了。紀錄片播出後很多人記住這件事。',log:'公益營全程參與：'+fx({rep:rr(12,17),loyal:rr(3200,5000),fans:rr(7500,11000),fat:rr(8,13),stress:-rr(6,10),host:1})})},
+ {t:'【只出席開幕】行程排不開',d:'口碑小幅提升',
+  run:()=>({ok:1,calc:'短暫出席',story:'你露臉兩小時就趕下一場，孩子們還是很開心。',log:'公益營短暫出席：'+fx({rep:rr(3,6),fat:rr(2,5)})})}]},
+{id:'champ',where:['pro'],w:11,cd:3,cond:()=>(LG[S.lg].rank||0)>=3&&S.years>=1,tag:'lgd',
+ title:()=>'🏆 總冠軍系列賽最終戰',
+ desc:()=>`【${S.team}】打進總冠軍系列賽，來到聽牌的最終戰。休息室外的走道擠滿了球迷，應援團要撐住整場氣氛。`,
+ ch:()=>[{t:'【全隊總動員】主導整場應援編排',d:`檢定：體能｜難度 ${DF(20)}｜奪冠可獲冠軍戒指`,
+  run:()=>{const c=chk('stamina',20);
+   if(c.ok){S.rings++;return{ok:1,calc:c.txt,story:`延長賽第十一局逆轉。彩帶落下時你跪在應援台上哭了——這是你的第 ${S.rings} 座冠軍。`,
+    log:`🏆 奪冠（第 ${S.rings} 座戒指）：`+fx({fans:rr(28000,38000),loyal:rr(6500,9500),rep:rr(12,17),rel:rr(8,13),fat:rr(14,19)})};}
+   return{ok:0,calc:c.txt,story:'第八局失分後全場安靜下來，你的聲音在那個瞬間也啞了。',log:'冠軍戰惜敗：'+fx({stress:rr(13,19),fat:rr(12,17),fans:rr(6500,9500),rep:rr(3,6)})};}},
+ {t:'【穩住節奏】把體力平均分配',d:'無風險：口碑、死忠粉提升｜疲勞上升',
+  run:()=>({ok:1,calc:'穩健控場',story:'你沒有拚到極限，但整場沒有一秒鐘氣氛掉下來。',log:'冠軍戰穩健控場：'+fx({rep:rr(6,10),loyal:rr(2400,3800),fans:rr(4800,7500),fat:rr(8,13)})})}]},
+{id:'asia_call',where:['pro'],w:14,cd:99,once:1,tag:'lgd',cond:()=>S.flags.korea&&ovr()>=70&&S.fans>=120000,
+ title:()=>'🌏 亞洲聯合舞台總監來電',
+ desc:()=>'亞洲六國聯盟要組一支跨國聯合應援隊，巡迴台北、首爾、東京、大阪與新加坡。總監說：「我們需要一個能定調的人。」',
+ ch:()=>[{t:'【接下總召】主導跨國聯合編舞',d:`檢定：舞蹈｜難度 ${DF(22)}｜解鎖亞洲聯合舞台`,
+  run:()=>{const c=chk('dance',22);
+   if(c.ok){S.flags.asiaOk=1;return{ok:1,calc:c.txt,story:'五國舞者在你的口令下同時落拍。那一刻你知道，你已經不只是某一隊的應援員了。',
+    log:'獲得亞洲聯合舞台總召資格：'+fx({fans:rr(40000,52000),loyal:rr(7500,11000),rep:rr(14,19),dance:1})};}
+   return{ok:0,calc:c.txt,story:'語言與節奏習慣的落差比想像中大，最後由日本代表接手總召。',log:'亞洲總召未果：'+fx({stress:rr(12,17),fans:rr(10000,15000),rep:rr(3,6)})};}},
+ {t:'【只當台灣代表】專心跳好自己的段',d:'資金增加、粉絲與口碑提升',
+  run:()=>({ok:1,calc:'代表出征',story:'你在台北場拿下最大的歡呼，也認識了一整排海外同業。',log:'亞洲巡迴台灣代表：'+fx({money:rr(32,50),fans:rr(16000,25000),rep:rr(6,10),fat:rr(8,13)})})}]},
+{id:'hof',where:['pro','amateur'],w:15,cd:99,once:1,tag:'lgd',
+ cond:()=>S.age>=32&&S.reputation>=78&&(S.rings>=1||S.fans>=150000),
+ title:()=>'🏛️ 應援名人堂票選',
+ desc:()=>'聯盟成立十週年，首次舉辦「應援名人堂」票選。你的名字出現在候選名單第一頁。',
+ ch:()=>[{t:'【拍一支回顧影片】親自向球迷拉票',d:`檢定：社群｜難度 ${DF(20)}`,
+  run:()=>{const c=chk('social',20);
+   if(c.ok){S.flags.hof=1;return{ok:1,calc:c.txt,story:'你把十七年的影片剪成六分鐘。公布當晚，你的得票率是第一。',
+    log:'🏛️ 入選應援名人堂：'+fx({rep:rr(16,24),fans:rr(34000,46000),loyal:rr(8000,12000),stress:-rr(12,18)})};}
+   return{ok:0,calc:c.txt,story:'影片剪得太長，年輕世代沒看完。你以三票之差落選。',log:'名人堂票選落選：'+fx({stress:rr(10,15),rep:rr(4,7)})};}},
+ {t:'【什麼都不做】讓球迷自己決定',d:`檢定：主持｜難度 ${DF(18)}｜死忠粉 2 萬以上自動通過`,
+  run:()=>{const auto=S.loyalFans>=20000,c=chk('host',18);
+   if(c.ok||auto){S.flags.hof=1;
+    return{ok:1,calc:c.txt+(auto?'　（死忠粉 2 萬以上自動通過）':''),story:'死忠粉自發做了應援看板與投票教學圖。你什麼都沒說，就入選了。',
+     log:'🏛️ 由死忠粉推入名人堂：'+fx({rep:rr(15,21),loyal:rr(4800,7500),stress:-rr(8,13)})};}
+   return{ok:0,calc:c.txt,story:'沒有宣傳的候選人終究吃虧，你落在第四名。',log:'名人堂落選：'+fx({stress:rr(6,10)})};}}]},
+{id:'wtour',where:['pro'],w:13,cd:6,cond:()=>S.flags.asiaOk&&S.fans>=180000,tag:'lgd',
+ title:()=>'🌐 世界巡演邀約',
+ desc:()=>'一間國際運動娛樂公司要辦「亞洲應援之夜」世界巡演，六座城市、十二場演出，主打你的名字。',
+ ch:()=>[{t:'【接下全巡演】十二場全打',d:'資金與粉絲大幅增加｜疲勞、壓力大增',
+  run:()=>({ok:1,calc:'世界巡演成行',story:'最後一場在洛杉磯，台下有人舉著寫著你名字的中文燈牌。',
+   log:'完成世界巡演：'+fx({money:rr(125,175),fans:rr(52000,70000),loyal:rr(10000,14000),rep:rr(10,15),fat:rr(22,28),stress:rr(12,18)})})},
+ {t:'【只接亞洲三場】保留身體',d:'資金與粉絲增加｜疲勞上升',
+  run:()=>({ok:1,calc:'節制的巡演',story:'你只跑了台北、首爾、東京，然後回家睡了三天。',
+   log:'部分參與巡演：'+fx({money:rr(48,74),fans:rr(20000,30000),rep:rr(6,10),fat:rr(10,15)})})}]},
+{id:'legacy',where:['pro','amateur'],w:11,cd:99,once:1,tag:'lgd',cond:()=>S.age>=33&&S.reputation>=70,
+ title:()=>'📖 自傳與紀錄片提案',
+ desc:()=>'出版社與紀錄片導演同時找上你：「你的十七年應該被寫下來。」',
+ ch:()=>[{t:'【全都做】自傳＋紀錄片同步進行',d:'資金增加、口碑大增｜壓力上升',
+  run:()=>{S.flags.legacy=1;return{ok:1,calc:'留下紀錄',story:'紀錄片最後一顆鏡頭是空的應援台。導演說那是他拍過最安靜的畫面。',
+   log:'出版自傳與紀錄片：'+fx({money:rr(58,84),rep:rr(12,18),fans:rr(25000,36000),loyal:rr(6500,9500),stress:rr(10,15)})};}},
+ {t:'【只寫自傳】不想被鏡頭跟拍',d:'資金增加、口碑提升',
+  run:()=>{S.flags.legacy=1;return{ok:1,calc:'安靜的紀錄',story:'你花了兩個休賽期手寫初稿，出版社一個字都沒改。',
+   log:'出版自傳：'+fx({money:rr(24,38),rep:rr(6,10),fans:rr(8000,13000)})};}}]},
+{id:'farewell',where:['pro'],w:16,cd:99,once:1,tag:'lgd',cond:()=>S.age>=34&&S.years>=4,
+ title:()=>'🎆 引退巡迴之夜',
+ desc:()=>`球團提出為你舉辦「引退巡迴」——本季每個主場都替你辦一次應援之夜。\n⚠️ 一旦答應，本季季末就是你的生涯終點。`,
+ ch:()=>[{t:'【接受】走完最後一季的每一座球場',d:'口碑、死忠粉大增｜本季季末強制引退',
+  run:()=>{S.flags.farewell=1;S.flags.fwYear=S.year;return{ok:1,calc:'最後一季',story:'最後一場你沒有跳完最後八拍——全場先站起來了。你在應援台上鞠了很久的躬。',
+   log:'🎆 宣布引退巡迴，本季季末將正式掛靴：'+fx({rep:rr(17,24),loyal:rr(12000,18000),fans:rr(20000,30000),money:rr(40,62),stress:-rr(20,30)})};}},
+ {t:'【謝絕】想安靜地離開',d:'口碑提升、壓力下降',
+  run:()=>({ok:1,calc:'安靜離場',story:'你只在最後一場結束後，把彩球放在休息室的架子上。',log:'謝絕引退巡迴：'+fx({rep:rr(6,10),stress:-rr(12,18),loyal:rr(2400,3800)})})}]},
+{id:'filler',where:['school','amateur','pro'],w:2,cd:1,tag:'',title:()=>'🗓️ 日常訓練週',
+ desc:()=>'沒有比賽也沒有通告的一週。練習室的鏡子擦得很乾淨。',
+ ch:()=>[{t:'【加練基本功】把細節磨到位',d:'舞蹈、體能小幅提升｜疲勞上升',
+  run:()=>({ok:1,calc:'平凡的累積',story:'一個八拍練了六十次，沒人看見，但身體記住了。',log:'日常加練：'+fx({dance:1,stamina:1,fat:rr(3,7)})})},
+ {t:'【好好休息】睡到自然醒',d:'疲勞、壓力下降｜健康回升',
+  run:()=>({ok:1,calc:'難得的空白',story:'你睡了十小時，起來煮了一頓正常的飯。',log:'日常休息：'+fx({fat:-rr(10,15),stress:-rr(6,10),hp:rr(3,7)})})}]}
+];
+function draw(){const sk=stage();
+ let p=EV.filter(e=>{if(e.where&&!e.where.includes(sk))return false;
+  if(e.once&&S.seen[e.id])return false;
+  const l=S.lastSeen[e.id];if(l!=null&&(S.tick-l)<(e.cd||3))return false;
+  if(e.cond&&!e.cond(S))return false;return true;});
+ if(!p.length)p=EV.filter(e=>e.id==='filler');
+ let tot=0;const w=p.map(e=>{let x=e.w||5;if(e.goal&&e.goal===S.goal)x*=1.9;
+  if(/^(rival|mentor|spon|tboss)/.test(e.id))x*=1.5;tot+=x;return x;});
+ let r=rnd()*tot;for(let i=0;i<p.length;i++){r-=w[i];if(r<=0)return p[i];}return p[p.length-1];}
+function mark(e){S.tick++;S.lastSeen[e.id]=S.tick;if(e.once)S.seen[e.id]=1;}
+
+/* ===== 挖角／跨運動兼任／返台 邏輯 ===== */
+function poachTarget(){const o=ovr(),rk=LG[S.lg].rank||0;
+ if(o>=LG.cpbl.req||S.fans>=32000){const g=GROUPS.filter(x=>x.cpbl!==S.team);
+  if(g.length&&rk<=4){const p=pick(g);return{k:'cpbl',t:p.cpbl,g:p.id,d:p.tpbl};}}
+ if(o>=LG.tpbl.req){const g=GROUPS.filter(x=>x.tpbl&&x.tpbl!==S.team);
+  if(g.length&&rk<=3){const p=pick(g);return{k:'tpbl',t:p.tpbl,g:p.id,d:null};}}
+ if(o>=LG.tvl.req&&rk<=1){const v=pick(VOLLEY.filter(x=>x!==S.team));return{k:'tvl',t:v,g:null,d:null};}
+ return null;}
+function canSide(){return !isAma()&&!isSchool()&&!S.sideLg&&!S.dual&&S.age>=19
+ &&S.health>=60&&S.fatigue<=70&&(LG[S.lg].rank||0)>=1;}
+function sideOffers(){if(!canSide())return[];
+ const o=ovr(),mySport=sportOf(S.lg),out=[];
+ if(mySport!=='volley'&&o>=LG.tvl.req-4){const v=pick(VOLLEY);out.push({k:'tvl',t:v});}
+ if(mySport!=='basket'){
+  if(o>=LG.tpbl.req-4){const g=GROUPS.filter(x=>x.tpbl);const p=pick(g);out.push({k:'tpbl',t:p.tpbl});}
+  else if(o>=LG.indieball.req-4){const p=pick(INDIE);out.push({k:'indieball',t:p.name});}}
+ if(mySport!=='base'&&o>=LG.cpbl.req-2){const g=GROUPS.filter(x=>x.cpbl!==S.team);const p=pick(g);out.push({k:'cpbl',t:p.cpbl});}
+ return out;}
+function signSide(k,t){S.sideLg=k;S.sideTeam=t;S.sideYr=0;
+ const c=tCol(t);S.sideC1=c?c[0]:'#0f766e';S.sideC2=c?c[1]:'#14b8a6';
+ S.flags.crossSport=1;}
+function dropSide(){S.sideLg=null;S.sideTeam=null;S.sideYr=0;S.sideC1=null;S.sideC2=null;}
+function homeOffers(){if(!(S.lg==='korea'||S.lg==='asia'))return[];
+ const o=ovr(),out=[];
+ if(o>=LG.cpbl.req-6){const g=GROUPS.filter(x=>x.cpbl);const p=pick(g);
+  out.push({k:'cpbl',t:p.cpbl,g:p.id,d:p.tpbl,n:`${p.name}・${p.style}｜返台重返 CPBL`});}
+ if(o>=LG.tpbl.req-6){const g=GROUPS.filter(x=>x.tpbl);const p=pick(g);
+  out.push({k:'tpbl',t:p.tpbl,g:p.id,d:null,n:`${p.name}・${p.style}｜返台加入職籃`});}
+ return out;}
+
+/* ============================================================ UI */
+const fanT=n=>n<1000?String(n):n<10000?(n/1000).toFixed(1)+'k':(n/10000).toFixed(1)+'萬';
+function go(n){[1,2,3].forEach(i=>{
+ document.getElementById('pg'+({1:'Main',2:'Stat',3:'Log'}[i])).classList.toggle('on',i===n);
+ document.getElementById('n'+i).classList.toggle('on',i===n);});window.scrollTo({top:0,behavior:'smooth'});}
+function chips(str){if(!str)return'';const out=[];let rest=' '+str+' ';
+ const R=[[/檢定：(體能|舞蹈|魅力|主持|社群|特技)/g,(m,a)=>({t:'檢定 '+a,k:'dif'})],
+ [/難度\s*(\d+)/g,(m,a)=>({t:'難度 '+a,k:'dif'})],
+ [/-1\s*AP/g,()=>({t:'−1 行動點',k:'ap'})],
+ [/行動點\s*(永久\s*)?[+−-]1/g,m=>({t:/[−-]/.test(m)?'行動點 −1':'行動點 +1',k:'ap'})],
+ [/(費用|資本額|違約金)\s*(\d+)\s*萬/g,(m,a,b)=>({t:a+' '+b+'萬',k:'mon'})],
+ [/(年收入|資金)(大幅|小幅)?(增加|減少)/g,(m,a,b,c)=>({t:a+(b||'')+c,k:'mon'})],
+ [/零用錢增加/g,()=>({t:'零用錢增加',k:'mon'})],
+ [/(粉絲|死忠粉|聲量)(大幅|小幅|微幅)?(提升|增加|上升)/g,(m,a,b)=>({t:a+(b||'')+'提升',k:'fan'})],
+ [/(粉絲|死忠粉|聲量)(大幅|小幅)?(下降|流失|減少|損失)/g,(m,a,b)=>({t:a+(b||'')+'下降',k:'dn'})],
+ [/(口碑|球團關係|主隊關係|健康|體能|舞蹈|魅力|主持|社群|特技)(大幅|小幅|微幅)?(提升|回升|增加|上升|大增)/g,(m,a,b)=>({t:a+(b||'')+'提升',k:'up'})],
+ [/(口碑|球團關係|主隊關係|健康|體能|舞蹈|魅力|主持|社群|特技)(大幅|小幅)?(下降|減少|大減)/g,(m,a,b)=>({t:a+(b||'')+'下降',k:'dn'})],
+ [/(疲勞|壓力|黑粉)(與壓力)?(大幅|小幅|微幅|長期)?(上升|增加|大增)/g,(m,a)=>({t:a+'上升',k:'dn'})],
+ [/(疲勞|壓力|黑粉)(大幅|小幅)?(下降|減少|大減)/g,(m,a,b)=>({t:a+(b||'')+'下降',k:'up'})],
+ [/無風險/g,()=>({t:'無風險',k:'up'})],[/高風險/g,()=>({t:'高風險',k:'dn'})],
+ [/永久舊傷/g,()=>({t:'永久舊傷',k:'dn'})],
+ [/(專注|全能)\s(I{1,3})\s?\+(\d)/g,(m,a,b,c)=>({t:a+' '+b+' +'+c,k:'up'})],
+ [/(體能|舞蹈|魅力|主持|社群|特技)\s*\+(\d+)～(\d+)/g,(m,a,b,c)=>({t:a+' +'+b+'～'+c,k:'up'})],
+ [/([一-龥]+)\s*\+(\d+)/g,(m,a,b)=>({t:a+' +'+b,k:'up'})]];
+ R.forEach(([re,f])=>{rest=rest.replace(re,(...a)=>{const o=f(...a);if(o)out.push(o);return' ';});});
+ const plain=rest.replace(/[｜|、，,。\s]+/g,' ').trim();
+ let h=out.map(o=>`<span class="chip c-${o.k}">${esc(o.t)}</span>`).join('');
+ if(plain)h+=`<span class="chip c-neu">${esc(plain)}</span>`;return h;}
+function toast(){if(!FXP.length)return;const box=document.getElementById('toast');
+ FXP.slice(0,5).forEach((p,i)=>setTimeout(()=>{const d=document.createElement('div');
+  d.className='ts ts-'+(p.k==='neu'?'mon':p.k);d.textContent=p.t;box.appendChild(d);
+  setTimeout(()=>d.remove(),2400);},i*110));}
+function setTier(){const L=LG[S.lg];
+ document.documentElement.style.setProperty('--t1',S.tc1||L.c1||'#ec4899');
+ document.documentElement.style.setProperty('--t2',S.tc2||L.c2||'#8b5cf6');
+ document.documentElement.style.setProperty('--s1',S.sideC1||'#14b8a6');
+ document.documentElement.style.setProperty('--s2',S.sideC2||'#5eead4');}
+function radar(){const svg=document.getElementById('rad');if(!svg)return;
+ const cx=100,cy=90,R=66,N=6,MX=CFG.absCap;
+ const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/N;return[cx+Math.cos(a)*r,cy+Math.sin(a)*r];};
+ let h='';[.25,.5,.75,1].forEach(f=>{const p=[];for(let i=0;i<N;i++)p.push(pt(i,R*f).map(v=>v.toFixed(1)).join(','));
+  h+=`<polygon points="${p.join(' ')}" fill="none" stroke="#283244" stroke-width="1"/>`;});
+ for(let i=0;i<N;i++){const[x,y]=pt(i,R);h+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#283244" stroke-width="1"/>`;}
+ const cp=[],vp=[];
+ AK.forEach((k,i)=>{const cv=capShown(k)?cap(k):S[k];
+  cp.push(pt(i,R*cv/MX).map(v=>v.toFixed(1)).join(','));
+  vp.push(pt(i,R*Math.max(S[k],0)/MX).map(v=>v.toFixed(1)).join(','));});
+ h+=`<polygon points="${cp.join(' ')}" fill="none" stroke="#4b5563" stroke-width="1" stroke-dasharray="3 3"/>`;
+ h+=`<defs><linearGradient id="rgd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--t1)"/><stop offset="1" stop-color="var(--t2)"/></linearGradient></defs>`;
+ h+=`<polygon points="${vp.join(' ')}" fill="url(#rgd)" fill-opacity=".45" stroke="var(--t1)" stroke-width="2"/>`;
+ AK.forEach((k,i)=>{const[x,y]=pt(i,R+16);
+  h+=`<text x="${x.toFixed(1)}" y="${(y+5).toFixed(1)}" fill="#94a3b8" font-size="13" text-anchor="middle">${AI[k]}</text>`;});
+ svg.innerHTML=h;}
+function ui(){const o=ovr();
+ if(isSchool())S.pos=o>=45?"社團主舞":"社團成員";
+ else if(S.flags.captain)S.pos="隊長";else if(S.flags.cpblC)S.pos="C位王牌";
+ else if(S.fans>100000)S.pos="人氣天后";else if(S.dance>=62)S.pos="主舞擔當";
+ else if(S.charm>=62)S.pos="門面擔當";else S.pos=o<30?"新人":"正式隊員";
+ setTier();
+ T('av',S.name.slice(-1));T('wName',S.name);
+ T('wSub',`${TYPES[S.type].name.replace(/^\S+\s/,'')}・${GOALS[S.goal].name.replace(/^\S+\s/,'')}・${S.pos}`);
+ T('wAge',S.age);T('wYear',S.year+' 年');
+ [0,1,2].forEach(i=>{const e=document.getElementById('s'+i);
+  e.className='sp'+(S.phase===i?' on':(S.phase>i?' did':''));});
+ T('mOvr',o);T('mMoney',S.money);T('mAp',S.phase===0?`${S.ap}/${S.maxAp}`:'—');
+ T('mHp',S.health);T('mFan',fanT(S.fans));
+ T('tLg',isSchool()?`高中舞社・${grade()}`:LG[S.lg].name+(LG[S.lg].sn?`・${LG[S.lg].sn}`:''));T('tNm',S.team);
+ const sdEl=document.getElementById('tSide');
+ if(sdEl)sdEl.innerHTML=S.sideLg?`🔀 兼任 <span style="color:${S.sideC2}">${esc(S.sideTeam)}</span>（${LG[S.sideLg].sn}・第 ${S.sideYr} 年）`:'';
+ const dot=S.tc1?`<span class="tclr"><i style="background:${S.tc1}"></i><i style="background:${S.tc2}"></i></span>`:'';
+ const m=[`${dot}<span class="chip c-neu">${isSchool()?'學生・無合約':isAma()?'自由身・無合約':(S.contract>0?`履約中 剩 ${S.contract} 年`:'合約到期 FA')}</span>`];
+ if(!isAma()&&!isSchool()){m.push(`<span class="chip c-up">同隊 ${S.years} 年</span>`);
+  m.push(`<span class="chip ${S.clubRel>=0?'c-up':'c-dn'}">關係 ${S.clubRel}</span>`);}
+ m.push(`<span class="chip c-mon">口碑 ${S.reputation}</span>`);
+ if(S.rings)m.push(`<span class="chip c-mon">🏆 ${S.rings} 冠</span>`);
+ if(S.dual&&S.dualTeam)m.push(`<span class="chip c-fan">集團雙棲 ${esc(S.dualTeam)}</span>`);
+ if(S.flags.poach)m.push(`<span class="chip c-dif">季末挖角報價</span>`);
+ if(S.flags.wantHome)m.push(`<span class="chip c-dif">評估返台</span>`);
+ H('tMeta',m.join(''));
+ T('kOvr',o);const a=document.getElementById('arc');
+ if(a)a.style.strokeDashoffset=String(226-226*Math.min(o,100)/100);
+ T('kMoney',S.money);T('kAp',S.phase===0?`${S.ap}/${S.maxAp}`:'—');
+ T('kFan',fanT(S.fans));T('kLoy',fanT(S.loyalFans));
+ const V=[['❤️ 健康',S.health,1],['⚡ 疲勞',S.fatigue,0],['🧠 壓力',S.stress,0],['🔥 黑粉',S.troll,0]];
+ H('vBars',V.map(([n,v,good])=>{const c=good?(v<40?'f-bad':v<70?'f-md':'f-ok'):(v>70?'f-bad':v>40?'f-md':'f-ok');
+  return`<div class="bar"><div class="lb"><i>${n}</i><b>${v}<span style="color:var(--dim);font-weight:400"> /100</span></b></div>
+  <div class="trk" role="progressbar" aria-label="${n}" aria-valuenow="${v}" aria-valuemin="0" aria-valuemax="100"><div class="fil ${c}" style="width:${v}%"></div></div></div>`;}).join(''));
+ radar();
+ H('aList',AK.map(k=>{const c=cap(k),mx=S[k]>=c,sh=capShown(k);
+  return`<div class="at${mx?' mx':''}"><span class="n">${AI[k]} ${AN[k]}</span>
+  <div class="trk"><div class="fil" style="width:${Math.min(100,S[k]/CFG.absCap*100)}%"></div></div>
+  <span class="v"><b>${S[k]}</b> /${sh?c:gradeOf(c)+'?'}</span></div>`;}).join(''));
+ const A=apCalc();
+ H('apSrc',[`<span class="bd bd-s">基礎 3</span>`]
+  .concat(A.plus.map(x=>`<span class="bd bd-e">${x}</span>`))
+  .concat(A.minus.map(x=>`<span class="bd bd-r">${x}</span>`))
+  .concat([`<span class="bd bd-g">合計 ${A.n}</span>`]).join(''));
+ const g=GOALS[S.goal];
+ H('goalCard',`<b>${esc(g.name)} ${g.chk(S)?'<span class="chip c-up">已達成</span>':''}</b><i>${esc(g.desc)}</i>`);
+ const C=[['宿敵線',S.chain.rival],['恩師線',S.chain.mentor],['金主線',S.chain.spon],['黑粉線',S.chain.tboss]];
+ H('chainBox',C.map(([n,v])=>`<div class="cl"><span>${n}</span><span class="dots">${[1,2,3].map(i=>`<span class="dot${v>=i?' on':''}"></span>`).join('')}</span></div>`).join(''));
+ const b=[`<span class="bd bd-s">🌍 ${esc(S.seed)}</span>`],TT=TI();
+ if(TT.k!==0)b.push(`<span class="bd ${TT.cls}">${TT.ic} ${TT.n}</span>`);
+ if(S.sideLg)b.push(`<span class="bd bd-t">🔀 跨運動兼任</span>`);
+ if(S.flags.early)b.push('<span class="bd bd-g">🚀 早熟</span>');
+ if(S.flags.hard)b.push('<span class="bd bd-r">🔥 不服輸</span>');
+ if(S.flags.krRadar)b.push('<span class="bd bd-k">📡 星探雷達</span>');
+ if(S.flags.krScout)b.push('<span class="bd bd-p">📡 星探認證</span>');
+ if(isSchool())b.push('<span class="bd bd-b">🎒 學生階段</span>');
+ if(S.flags.vet8)b.push('<span class="bd bd-e">🏛️ 隊史傳奇</span>');else if(S.flags.vet5)b.push('<span class="bd bd-e">🎖️ 元老</span>');
+ if(S.flags.captain)b.push('<span class="bd bd-e">📣 隊長</span>');
+ if(S.flags.cpblC)b.push('<span class="bd bd-k">⚾ 主題日 C 位</span>');
+ if(S.rings)b.push(`<span class="bd bd-g">🏆 ${S.rings} 座冠軍</span>`);
+ if(S.flags.hof)b.push('<span class="bd bd-g">🏛️ 名人堂</span>');
+ if(S.flags.asiaOk)b.push('<span class="bd bd-g">🌏 亞洲總召</span>');
+ if(S.flags.returned)b.push('<span class="bd bd-b">🇹🇼 海歸返台</span>');
+ if(S.flags.farewell)b.push('<span class="bd bd-g">🎆 引退巡迴</span>');
+ if(S.flags.legacy)b.push('<span class="bd bd-p">📖 自傳出版</span>');
+ if(S.flags.tookFlag)b.push('<span class="bd bd-k">🎽 大旗傳承者</span>');
+ if(S.flags.wonCase)b.push('<span class="bd bd-p">⚖️ 判例先行者</span>');
+ if(S.flags.actress)b.push('<span class="bd bd-p">🎬 戲劇出演</span>');
+ if(S.flags.korea||S.flags.overseas)b.push('<span class="bd bd-k">✈️ 海外經歷</span>');
+ if(S.flags.legend)b.push('<span class="bd bd-g">🔥 凡人傳說</span>');
+ if(S.flags.chronic)b.push('<span class="bd bd-r">🩹 舊傷纏身</span>');
+ H('bdgs',b.join(''));renderLog();}
+function log(t){S.logs.unshift({y:S.year,p:S.phName[S.phase].split('：')[0],t});
+ if(S.logs.length>140)S.logs.pop();renderLog();}
+function renderLog(){const box=document.getElementById('logBox');if(!box)return;
+ let h='',cy=null;S.logs.forEach(l=>{if(l.y!==cy){cy=l.y;h+=`<div class="yr">${l.y} 年</div>`;}
+  h+=`<div class="li"><em>${esc(l.p)}</em>　${esc(l.t)}</div>`;});
+ box.innerHTML=h||'<div class="note">尚無紀錄。</div>';}
+function res(ok,calc,story){const b=document.getElementById('rBox');
+ if(b){b.style.display='block';b.className='res '+(ok?'win':'lose');}
+ T('rDice',calc||'');T('rText',story||'');
+ H('rChips',FXP.map(p=>`<span class="chip c-${p.k==='neu'?'neu':p.k}">${esc(p.t)}</span>`).join(''));
+ toast();FXP=[];ui();}
+function hideRes(){const b=document.getElementById('rBox');if(b)b.style.display='none';
+ const c=document.getElementById('cardPrev');if(c)c.style.display='none';}
+function setTag(c){const e=document.getElementById('eTag');if(e)e.className='tag '+(c||'');}
+function addC(box,t,d,fn,cls){const b=document.createElement('button');b.type='button';b.className='btn '+(cls||'');
+ b.innerHTML=`<b>${esc(t)}</b>${d?`<div class="cs">${chips(d)}</div>`:''}`;
+ b.addEventListener('click',()=>{FXP=[];fn();});box.appendChild(b);return b;}
+function ensure(box,l,fn){if(!box||box.children.length)return;
+ log('⚠️ 系統保底：本階段無可用選項，已自動提供推進按鈕。');
+ addC(box,l||'推進 ▸ 繼續','',fn||(()=>nextPhase()),'go');}
+
+/* ===== 生涯卡片 PNG ===== */
+function drawCard(){const W=1080,Hh=1560,c=document.createElement('canvas');c.width=W;c.height=Hh;
+ const x=c.getContext('2d'),t1=S.tc1||LG[S.lg].c1||'#ec4899',t2=S.tc2||LG[S.lg].c2||'#8b5cf6';
+ const bg=x.createLinearGradient(0,0,W,Hh);bg.addColorStop(0,'#101a34');bg.addColorStop(.5,'#0a0e1a');bg.addColorStop(1,'#1a1024');
+ x.fillStyle=bg;x.fillRect(0,0,W,Hh);
+ const gl=x.createRadialGradient(W/2,90,10,W/2,90,700);gl.addColorStop(0,t1+'55');gl.addColorStop(1,'transparent');
+ x.fillStyle=gl;x.fillRect(0,0,W,600);
+ const bar=x.createLinearGradient(0,0,W,0);bar.addColorStop(0,t1);bar.addColorStop(1,t2);
+ x.fillStyle=bar;x.fillRect(0,0,W,16);x.fillRect(0,Hh-16,W,16);
+ const F='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+ const txt=(s,px,y,col,sz,w,al)=>{x.font=`${w||700} ${sz}px ${F}`;x.fillStyle=col;x.textAlign=al||'left';x.fillText(s,px,y);};
+ txt('啦啦隊人生模擬器',W/2,86,'#94a3b8',30,800,'center');
+ txt('CHEERLIFE  CAREER  CARD',W/2,122,'#475569',20,800,'center');
+ x.font=`900 62px ${F}`;const tg=x.createLinearGradient(0,0,W,0);tg.addColorStop(0,t1);tg.addColorStop(1,t2);
+ x.fillStyle=tg;x.textAlign='center';x.fillText(S.name,W/2,212);
+ const TT=TI();
+ txt(`${TT.ic} ${TT.n}　種子 ${S.seed}`,W/2,258,'#cbd5e1',26,700,'center');
+ x.fillStyle='rgba(255,255,255,.05)';x.fillRect(70,300,W-140,110);
+ x.fillStyle=t1;x.fillRect(70,300,6,110);
+ txt(S.flags.finalTitle||honor(),96,352,'#f8fafc',33,900);
+ txt(`${CFG.startAge} → ${S.age} 歲　共 ${S.year-CFG.startYear} 年的應援人生`,96,390,'#94a3b8',22,600);
+ let y=470;
+ const row=(l,v,cl)=>{txt(l,90,y,'#64748b',22,700);txt(v,W-90,y,cl||'#f1f5f9',25,800,'right');y+=50;};
+ row('最終隊伍',S.team+(S.dualTeam?' ＆ '+S.dualTeam:''),t2);
+ if(S.sideTeam)row('跨運動兼任',`${S.sideTeam}（${LG[S.sideLg].sn}）`,S.sideC2||'#5eead4');
+ row('階梯層級',isSchool()?`高中舞社 ${grade()}`:LG[S.lg].name);
+ row('隊內定位／同隊年數',`${S.pos}　${isAma()?'—':S.years+' 年'}`);
+ row('冠軍戒指',`${S.rings} 座${S.flags.hof?'　🏛️ 名人堂':''}`,S.rings?'#fbbf24':'#f1f5f9');
+ row('大眾粉絲 ／ 死忠粉',`${fanT(S.fans)} ／ ${fanT(S.loyalFans)}`,'#f9a8d4');
+ row('生涯總收入 ／ 結餘',`${S.careerIncome} 萬 ／ ${S.money} 萬`,'#fcd34d');
+ row('口碑 ／ 黑粉',`${S.reputation} ／ ${S.troll}`);
+ y+=10;x.fillStyle='rgba(255,255,255,.08)';x.fillRect(80,y,W-160,2);y+=50;
+ txt('六 維 能 力',90,y,'#64748b',22,800);y+=46;
+ const bw=(W-200)/6;
+ AK.forEach((k,i)=>{const px=100+i*bw,v=S[k],h=Math.round(v/CFG.absCap*150);
+  x.fillStyle='rgba(255,255,255,.06)';x.fillRect(px,y,bw-22,150);
+  const g2=x.createLinearGradient(0,y+150-h,0,y+150);g2.addColorStop(0,t2);g2.addColorStop(1,t1);
+  x.fillStyle=g2;x.fillRect(px,y+150-h,bw-22,h);
+  txt(String(v),px+(bw-22)/2,y+178,'#f1f5f9',24,800,'center');
+  txt(AN[k],px+(bw-22)/2,y+206,'#64748b',19,600,'center');});
+ y+=248;
+ x.fillStyle='rgba(255,255,255,.05)';x.fillRect(70,y,W-140,130);
+ txt('綜合評分 OVR',96,y+42,'#64748b',22,700);
+ txt(String(ovr()),W-96,y+52,t1,52,900,'right');
+ const ok=GOALS[S.goal].chk(S);
+ txt(`🎯 ${GOALS[S.goal].name}　${ok?'✅ 達成':'❌ 未達成'}`,96,y+100,ok?'#6ee7b7':'#fca5a5',24,700);
+ y+=178;
+ if(S.second){const r=routes().find(z=>z.k===S.second);
+  if(r)txt(`📖 第二人生：${r.n}`,W/2,y,'#c4b5fd',26,700,'center');y+=46;}
+ txt('「離開舞台的人生，也是人生。」',W/2,Hh-92,'#475569',24,600,'center');
+ txt('Produced by jarvanthevoyager',W/2,Hh-56,'#5eead4',21,800,'center');
+ return c;}
+function showCard(){const c=drawCard(),p=document.getElementById('cardPrev');
+ if(p){p.width=c.width;p.height=c.height;p.getContext('2d').drawImage(c,0,0);p.style.display='block';
+  p.scrollIntoView({behavior:'smooth',block:'center'});}
+ return c;}
+function saveCard(){const c=showCard(),fn=`啦啦隊人生_${S.name}_${S.seed}.png`;
+ const done=()=>{FXP=[{t:'已產生生涯卡片圖檔',k:'up'}];toast();FXP=[];};
+ try{if(c.toBlob){c.toBlob(b=>{if(!b){done();return;}
+   try{if(navigator.canShare&&navigator.canShare({files:[new File([b],fn,{type:'image/png'})]})){
+     navigator.share({files:[new File([b],fn,{type:'image/png'})],title:'啦啦隊人生模擬器'}).catch(()=>{});done();return;}}catch(e){}
+   const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fn;
+   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);done();},'image/png');}
+  else{const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download=fn;a.click();done();}}
+ catch(e){done();}}
+
+/* ===== 存檔 ===== */
+function save(){if(S.ended)return;try{localStorage.setItem(SK,JSON.stringify({v:VER,s:S}));}catch(e){}}
+function clearSave(){try{localStorage.removeItem(SK);}catch(e){}}
+function restartLife(){ask('清除存檔','確定要清除目前的生涯進度並重新開始嗎？\n此動作無法復原。',
+ ()=>{clearSave();location.reload();},'清除並重來','取消');}
+function loadSave(){let p=null;try{p=JSON.parse(localStorage.getItem(SK));}catch(e){}
+ if(!p||p.v!==VER||!p.s){clearSave();T('sNote','⚠️ 存檔損毀或版本不符，已清除。');
+  document.getElementById('bCont').classList.add('hide');return;}
+ S=Object.assign(newState(),p.s);if(!S.flags.capShown)S.flags.capShown={};if(!S.rot)S.rot=[];
+ if(typeof S.prng!=='number'||!isFinite(S.prng))initSeed(S.seed||'AAAA2222');
+ document.getElementById('setup').classList.add('hide');
+ document.getElementById('game').classList.remove('hide');
+ log(`繼續遊戲：載入存檔成功（種子 ${S.seed}）`);renderPhase();}
+
+/* ===== 初始化 ===== */
+document.addEventListener('DOMContentLoaded',()=>{genSeed();
+ let h='',f=1;for(const k in TYPES){const t=TYPES[k];
+  const bt=Object.entries(t.bonus).filter(([,v])=>v!==0).sort((a,b)=>b[1]-a[1])
+   .map(([a,v])=>`${AN[a]}${v>0?'+':''}${v}`).join('　');
+  h+=`<button type="button" class="opt" role="radio" aria-checked="${!!f}" data-k="${k}" onclick="selT(this)"><b>${esc(t.name)}</b><i>${esc(t.desc)}<br>相對加權：${esc(bt)}</i></button>`;
+  if(f){S.type=k;f=0;}}
+ H('tBox',h);
+ let g='',f2=1;for(const k in GOALS){
+  g+=`<button type="button" class="opt" role="radio" aria-checked="${!!f2}" data-k="${k}" onclick="selG(this)"><b>${esc(GOALS[k].name)}</b><i>${esc(GOALS[k].desc)}</i></button>`;
+  if(f2){S.goal=k;f2=0;}}
+ H('gBox',g);
+ H('bStart',`<b>開啟傳奇生涯 ▸</b><div class="cs"><span class="chip c-neu">${CFG.startAge} 歲</span><span class="chip c-neu">${CFG.startYear} 年</span><span class="chip c-neu">高中舞社 高一</span></div>`);
+ try{const raw=localStorage.getItem(SK);if(raw){const p=JSON.parse(raw);
+  if(p&&p.v===VER&&p.s&&!p.s.ended){document.getElementById('bCont').classList.remove('hide');
+   T('sNote',`存檔：${p.s.name}・${p.s.age} 歲・${p.s.team}・${p.s.seed}`);}else localStorage.removeItem(SK);}}catch(e){clearSave();}});
+function selT(b){document.querySelectorAll('#tBox .opt').forEach(x=>x.setAttribute('aria-checked','false'));
+ b.setAttribute('aria-checked','true');S.type=b.dataset.k;}
+function selG(b){document.querySelectorAll('#gBox .opt').forEach(x=>x.setAttribute('aria-checked','false'));
+ b.setAttribute('aria-checked','true');S.goal=b.dataset.k;}
+function startGame(){
+ const n=document.getElementById('nm'),sd=document.getElementById('seed');
+ const tb=document.querySelector('#tBox .opt[aria-checked="true"]'),gb=document.querySelector('#gBox .opt[aria-checked="true"]');
+ const ty=tb?tb.dataset.k:'dancer',go2=gb?gb.dataset.k:'diva';
+ S=newState();
+ S.name=(n&&n.value.trim())?n.value.trim().slice(0,12):"林小葵";
+ S.seed=(sd&&sd.value.trim())?sd.value.trim().toUpperCase().slice(0,16):rollSeed();
+ if(sd)sd.value=S.seed;try{localStorage.setItem(SDK,S.seed);}catch(e){}
+ S.type=ty;S.goal=go2;initSeed(S.seed);
+ const ti=tierIdx(rnd()),TT=SEED_TIER[ti];
+ S.flags.tier=ti;S.flags.early=TT.k>=2;S.flags.krRadar=TT.k>=3;S.flags.hard=TT.k<0;S.flags.capShown={};
+ const bm=TYPES[S.type].bonus;
+ AK.forEach(k=>{S[k]=clamp(rr(18,32)+(bm[k]||0)+TT.start,CFG.floor,CFG.hardCap);});
+ AK.forEach(k=>{const fo=(bm[k]||0)>0?6:0;let c=POT_BASE[k]+rr(0,9)+fo+TT.cap;
+  if(TT.floor)c=Math.max(c,TT.floor);S.pot[k]=clamp(c,40,CFG.hardCap);
+  if(S.pot[k]<S[k])S.pot[k]=S[k];});
+ revealSeed();}
+function revealFinal(){const TT=TI();
+ T('eDesc',`受測者：${S.name}\n種子碼：${S.seed}\n\n鑑定等級 ▸ ${TT.ic} ${TT.n}\n\n教練評語：「${TT.say}」\n\n六軸潛力評級\n`
+  +AK.map(k=>`${AI[k]} ${AN[k]} ${gradeOf(cap(k))}`).join('　')
+  +(TT.ab?`\n\n特殊天賦：${TT.ab}`:'')
+  +'\n\n※ 具體資質數值需透過訓練瓶頸、運動科學檢測或名師指導才會揭露。');
+ const b=document.getElementById('cBox');b.innerHTML='';
+ addC(b,`▸ 開始 ${CFG.startAge} 歲的第一季`,'',()=>{renderPhase();},'go');}
+function revealSeed(){const TT=TI();setTier();
+ document.getElementById('setup').classList.add('hide');
+ document.getElementById('game').classList.remove('hide');
+ ui();setTag(TT.k>=2?'lgd':TT.k<0?'dgr':'');
+ T('eTitle','🔬 職業體能與天賦鑑定');
+ const b=document.getElementById('cBox');b.innerHTML='';
+ addC(b,'▸ 跳過鑑定動畫','',()=>{S.flags.rv=1;revealFinal();},'ghost');
+ const hdr=`受測者：${S.name}\n種子碼：${S.seed}\n\n`;
+ T('eDesc',hdr+'鑑定進行中…');
+ setTimeout(()=>{if(!S.flags.rv)T('eDesc',hdr+`鑑定等級 ▸ ${TT.ic} ${TT.n}`);},900);
+ setTimeout(()=>{if(S.flags.rv)return;T('eDesc',hdr+`鑑定等級 ▸ ${TT.ic} ${TT.n}\n\n教練評語：「${TT.say}」`);
+  if(TT.k>=2&&navigator.vibrate)navigator.vibrate([40,60,120]);},1800);
+ setTimeout(()=>{if(!S.flags.rv){S.flags.rv=1;revealFinal();}},2800);
+ log(`天賦鑑定：${TT.ic} ${TT.n}（種子 ${S.seed}）`);
+ log(`潛力評級　${AK.map(k=>`${AN[k]}${gradeOf(cap(k))}`).join('／')}`);
+ if(TT.ab)log('特殊天賦：'+TT.ab);save();}
+
+/* ===== 流程 ===== */
+function doneMid(){ui();save();const b=document.getElementById('cBox');b.innerHTML='';addC(b,'繼續推進當季事件 ▸','',()=>renderMid(),'go');}
+function doneWS(){ui();save();const b=document.getElementById('cBox');b.innerHTML='';addC(b,'繼續推進休賽期行程 ▸','',()=>renderWinter(),'go');}
+function doneW(){ui();save();const b=document.getElementById('cBox');b.innerHTML='';addC(b,'推進至下一年 ▸','',()=>nextPhase(),'go');}
+function nextPhase(){S.phase++;if(S.phase>=3){S.phase=0;S.year++;S.age++;decline();}S.apGiven=false;renderPhase();}
+function decline(){const a=S.age;let d={};
+ if(a>=38)d={stamina:-rr(3,5),acro:-rr(3,5),dance:-rr(2,4),charm:-rr(1,3)};
+ else if(a>=35)d={stamina:-rr(2,4),acro:-rr(2,4),dance:-rr(1,3),charm:-1};
+ else if(a>=32)d={stamina:-rr(1,3),acro:-rr(1,3),dance:-1};
+ else if(a>=29)d={stamina:-1,acro:-1};
+ if(Object.keys(d).length){const s=fx(d);FXP=[];if(s)log(`年齡衰退 ${a} 歲：${s}`);}
+ if(a>=34&&!isAma()&&!isSchool())S.clubRel=clamp(S.clubRel-3,-50,50);
+ if(S.flags.chronic&&a>=30){const s=fx({hp:-rr(2,5)});FXP=[];log('舊傷影響：'+s);}
+ if(S.sideLg){const s=fx({fat:rr(8,14),stress:rr(4,8),hp:-rr(1,4)});FXP=[];log('兼任兩隊的全年無休：'+s);}}
+function vitals(){if(S.ended)return true;
+ if(S.health<=0){ui();ending('健康透支，因傷被迫提前引退');return true;}
+ if(S.stress>=100){ui();ending('身心俱疲崩潰，提前離開舞台');return true;}return false;}
+function renderPhase(){if(S.ended)return;hideRes();setTag('');if(vitals())return;
+ const A=apCalc();S.maxAp=A.n;
+ if(S.phase===0&&!S.apGiven){S.ap=S.maxAp;S.apGiven=true;
+  if(S.stress>=80)log('心態警訊：壓力瀕臨臨界，行動點受影響，請盡快安排休養。');}
+ ui();save();
+ if(S.age>=CFG.maxAge){ending('年齡到達極限，光榮掛靴');return;}
+ if(S.phase===0)spring();else if(S.phase===1)renderMid();else renderWinter();}
+function spring(){const b=document.getElementById('cBox');if(!b)return;b.innerHTML='';
+ setTag('');T('eTitle','季初：訓練與休養規劃');
+ const cs=S.lastK?(S.streak>1?`連段狀態：專注 ${FN[Math.min(3,S.streak-1)]}（${AN[S.lastK]} 連續 ${S.streak} 次）`
+  :`連段狀態：全能累積 ${S.rot.length}／6 軸（${S.rot.map(k=>AN[k]).join('→')}）`):'連段狀態：尚未開始';
+ T('eDesc',`行動點 ${S.ap} / ${S.maxAp}\n${cs}${S.sideLg?`\n🔀 兼任【${S.sideTeam}】中 —— 全年行程壓縮，行動點 −1`:''}`);
+ save();
+ const TR=[['dance','💃 刀群舞發力訓練'],['stamina','🏃 心肺與核心重訓'],
+  ['charm','⭐ 造型與鏡頭表現課'],['host','🎤 口條與臨場反應訓練'],
+  ['social','📱 短影音企劃與剪輯'],['acro','🤸 空翻與體操專項']];
+ if(S.ap>0){TR.forEach(([k,t])=>{
+   const tm=trainMod(k),lo=Math.max(1,1+tm.m),hi=Math.max(lo,4+tm.m),ct=comboTag(k);
+   const ex={dance:'疲勞上升、壓力上升',stamina:'疲勞上升',charm:'疲勞上升',
+    host:'疲勞上升',social:'疲勞上升、粉絲提升',acro:'疲勞上升、健康下降'}[k];
+   addC(b,`${t}（-1 AP）`,`${AN[k]} +${lo}～${hi}｜${ct?ct+'｜':''}${ex}`,()=>{S.ap--;
+    const r=doTrain(k),got=addA(k,r.g),s=fx(r.ex);
+    const cal=`訓練成果 ▸ ${AN[k]} +${got}${r.src.length?`　（${r.src.join('／')}）`:''}`;
+    if(r.brk){res(true,cal+`　🔓 突破天花板 → ${cap(k)}`,`你在極限之上又擠出一點空間 —— ${AN[k]}的資質上限被推高了。`);
+     log(`🔓 ${AN[k]} 突破資質天花板至 ${cap(k)}！`);}
+    else if(got===0){const bo=fx({fans:rr(1400,2200)+Math.round(S.ap*400),rep:rr(1,3)});
+     res(true,cal+`　（已達天花板 ${cap(k)}）`,`${AN[k]}已達天賦極限，訓練轉化為舞台氣場與聲量。`);
+     log(`${AN[k]} 已達上限，轉化為：${bo}`);}
+    else{res(true,cal,(r.crit?'✨ 動作突然通了！':'')+`一整季的專項訓練沒有白費，${AN[k]}提升了 ${got} 點。`);
+     log(`${t}：${AN[k]}+${got}${r.crit?'（突破）':''}、${s}`);}
+    if(r.awake){log('🌈 全能覺醒：'+r.awake);FXP=[];}
+    if(tryReveal(k))log(`🩺 你感覺到${AN[k]}的瓶頸 —— 資質上限確認為 ${cap(k)}。`);
+    if(vitals())return;spring();});});
+  const hb=S.flags.hard?1.3:1;
+  addC(b,'🛌 全身 SPA 與深層休養（-1 AP）','健康回升、疲勞大減、壓力下降',()=>{S.ap--;
+   const s=fx({hp:Math.round(rr(10,14)*hb),fat:-Math.round(rr(16,21)*hb),stress:-Math.round(rr(12,17)*hb)});
+   res(true,'充分休養','按摩、伸展、睡飽三件事做滿，狀態明顯回來了。');log('SPA 休養：'+s);spring();});
+  if(S.stress>=45)addC(b,'🧘 心理諮商與短期休假（-1 AP）','壓力大幅下降、健康回升',()=>{S.ap--;
+   const s=fx({stress:-Math.round(rr(26,34)*hb),hp:rr(4,8),fat:-rr(6,11)});
+   res(true,'心理照護','你關掉社群通知，找了信任的心理師聊了很久。');log('心理諮商：'+s);spring();});
+  if(!isSchool()&&S.money>=18)addC(b,'💎 醫美與體態投資（-1 AP）','費用 18 萬｜魅力 +4～7、壓力上升',()=>{S.ap--;
+   const v=d4()+3,g=addA('charm',v),s=fx({money:-18,stress:rr(3,6)});
+   res(g>0,`療程成果 ▸ 魅力 +${g}`,g>0?'療程與體態管理同步進行，鏡頭前的你確實不一樣了。':'你的魅力已達天賦極限，這筆錢只買到了心安。');
+   log(`醫美投資：${g>0?`魅力+${g}、`:''}${s}`);if(tryReveal('charm'))log(`🩺 魅力資質上限確認為 ${cap('charm')}。`);spring();});
+  if(!isSchool()&&S.money>=12)addC(b,'✈️ 海外大師快閃研習營（-1 AP）','費用 12 萬｜舞蹈 +3～6、特技 +1～4、口碑提升',()=>{S.ap--;
+   const a1=d4()+2,a2=d4(),g1=addA('dance',a1),g2=addA('acro',a2),s=fx({money:-12,rep:rr(4,7),fat:rr(6,10)});
+   res(true,`研習成果 ▸ 舞蹈 +${g1}　特技 +${g2}`,'三天課程把你過去的習慣全部打散重組。');
+   log(`海外研習營：舞蹈+${g1}、特技+${g2}、${s}`);spring();});
+  if(!isSchool()&&S.flags.apBuyYear!==S.year&&S.money>=10)
+   addC(b,'💰 加購私人訓練時段','費用 10 萬｜本季行動點 +1',()=>{
+    S.money-=10;S.flags.apBuyYear=S.year;S.ap++;S.maxAp++;
+    res(true,'排進額外訓練時段','你自費包下練習室的深夜時段，多換來一次專注訓練的機會。');
+    log('加購私人訓練時段：資金-10萬、行動點 +1');spring();});
+  if(S.sideLg)addC(b,`🚪 終止兼任【${S.sideTeam}】`,'違約金 12 萬｜壓力大幅下降、行動點回復',()=>{
+    const s=fx({money:-12,stress:-rr(12,20),fat:-rr(8,14)});const t=S.sideTeam;dropSide();
+    res(true,'結束跨運動兼任',`你向【${t}】提出終止兼任，行事曆終於出現連續三天的空白。`);
+    log(`終止兼任【${t}】：`+s);spring();});
+ }else T('eDesc',`行動點已用盡（0 / ${S.maxAp}）\n${cs}\n\n是時候把成果帶上舞台了。`);
+ addC(b,'推進 ▸ 結束季初，進入賽季中','',()=>{S.phase=1;S.midStep=0;renderPhase();},'go');
+ ensure(b);}
+function renderMid(){const b=document.getElementById('cBox');if(!b)return;b.innerHTML='';
+ S.midStep++;
+ if(S.midStep<=2&&S.fatigue>=80){const s=fx({hp:-rr(10,15),stress:rr(3,7)});log('過勞警報：'+s);FXP=[];if(vitals())return;}
+ if(S.midStep>2){setTag('acc');
+  T('eTitle',isSchool()?`🏁 ${grade()}學期賽季落幕`:'🏁 本季賽程圓滿落幕');
+  T('eDesc',isSchool()?'本學期的比賽與校內表演都完成了，接下來是學期總結與假期安排。'
+   :`你在【${S.team}】${S.sideLg?`與【${S.sideTeam}】`:''}完成了本季所有應援與演出任務，準備進入季末結算。`);
+  ui();save();addC(b,'推進 ▸ 進入季末','',()=>{S.phase=2;S.winStep=0;renderPhase();},'go');ensure(b);return;}
+ const e=draw();mark(e);setTag(e.tag);
+ T('eTitle',`${e.title(S)}（${S.midStep}/2）`);T('eDesc',e.desc(S));
+ e.ch(S).forEach(c=>addC(b,c.t,c.d,()=>{const r=c.run(S);
+  res(r.ok!==0&&r.ok!==false,r.calc||'',r.story||'');if(r.log)log(r.log);
+  if(vitals())return;doneMid();}));
+ ensure(b,'推進 ▸ 繼續',()=>doneMid());}
+function upper(){const o=ovr(),rk=LG[S.lg].rank||0,out=[];
+ if(S.flags.asiaOk&&o>=LG.asia.req&&rk<6)
+  out.push({k:'asia',t:'亞洲聯合應援隊',g:null,d:null,l:'🌏 亞洲聯合舞台 ▸ 【亞洲聯合應援隊】',n:'六國巡迴・最高階舞台'});
+ const krFan=S.flags.krRadar?50000:(S.flags.krScout?60000:90000);
+ if(o>=LG.korea.req&&S.fans>=krFan&&rk<5){const p=pick(KOREA.filter(x=>x!==S.team));
+  out.push({k:'korea',t:p,g:null,d:null,l:`🌟 韓國星探跨海遞約 ▸ 【${p}】`,n:`KBO／KBL 重金邀約（需 OVR ${LG.korea.req}・粉絲 ${fanT(krFan)}）`});}
+ if((o>=LG.cpbl.req||S.fans>=30000)&&rk<4){const g=GROUPS.filter(x=>x.cpbl!==S.team);
+  if(g.length){const p=pick(g);out.push({k:'cpbl',t:p.cpbl,g:p.id,d:p.tpbl,l:`⬆ CPBL 職棒挖角 ▸ 【${p.cpbl}】`,n:`${p.name}・${p.style}${p.tpbl?'（含集團雙棲）':''}`});}}
+ if(o>=LG.tpbl.req&&rk<3){const g=GROUPS.filter(x=>x.tpbl&&x.tpbl!==S.team);
+  if(g.length){const p=pick(g);out.push({k:'tpbl',t:p.tpbl,g:p.id,d:null,l:`⬆ TPBL 職籃挖角 ▸ 【${p.tpbl}】`,n:`${p.name}・${p.style}`});}}
+ if(o>=LG.indieball.req&&rk<2){const g=INDIE.filter(x=>x.name!==S.team);
+  if(g.length){const p=pick(g);out.push({k:'indieball',t:p.name,g:null,d:null,l:`⬆ 半職業籃球 ▸ 【${p.name}】`,n:p.style});}}
+ if(o>=LG.tvl.req&&rk<1){const p=pick(VOLLEY.filter(x=>x!==S.team));
+  out.push({k:'tvl',t:p,g:null,d:null,l:`⬆ TVL 職排 ▸ 【${p}】`,n:'職排球團遞約'});}
+ return out;}
+function renderWinter(){const b=document.getElementById('cBox');if(!b)return;b.innerHTML='';
+ if(isHS()){S.winStep=1;recover();hsVac(b);ui();save();ensure(b,'推進 ▸ 進入下一年',()=>nextPhase());return;}
+ S.winStep++;if(S.winStep===1)contract(b);else offseason(b);}
+function recover(){const e=(S.age>=29?.9:1)*(S.flags.hard?1.3:1)*(S.sideLg?.75:1);
+ const s=fx({fat:-Math.round(rr(22,28)*e),stress:-Math.round(rr(8,13)*e)});FXP=[];if(s)log('季末調整：'+s);}
+function hsVac(b){const g=grade(),v=S.age===16?'暑假':'寒暑假';
+ setTag('sch');T('eTitle',`季末：${g}學期總結與${v}行程`);
+ T('eDesc',`📋 ${S.year} 年（${g}）學期總結\n綜合評分 ${ovr()}　粉絲 ${fanT(S.fans)}　死忠粉 ${fanT(S.loyalFans)}\n健康 ${S.health}／疲勞 ${S.fatigue}／壓力 ${S.stress}　零用錢 ${S.money} 萬\n\n高中階段沒有職業合約與薪資。請安排這個${v}：`);
+ addC(b,'💃 校園編舞外包與教室助教','零用錢增加｜舞蹈提升',()=>{const e=rr(3,5),r=Math.max(1,d4()-1);
+  const gg=addA('dance',r),s=fx({money:e});res(true,`打工成果 ▸ 舞蹈 +${gg}`,`你幫其他學校編排表演舞步，賺得 ${e} 萬元。`);log(`編舞助教：舞蹈+${gg}、${s}`);doneW();});
+ addC(b,'📸 網拍與平面模特兒兼職','零用錢增加｜魅力提升、粉絲提升',()=>{const e=rr(5,10),r=Math.max(1,d4()-1);
+  const gg=addA('charm',r),s=fx({money:e,fans:rr(700,1400)});res(true,`拍攝成果 ▸ 魅力 +${gg}`,`IG 照片被品牌相中，賺得津貼 ${e} 萬元。`);log(`平面模特：魅力+${gg}、${s}`);doneW();});
+ addC(b,'📱 經營短影音與校園人氣','社群提升、粉絲提升｜疲勞上升',()=>{const r=Math.max(1,d4()-1);
+  const gg=addA('social',r),s=fx({fans:rr(2400,3800),fat:rr(3,7)});res(true,`經營成果 ▸ 社群 +${gg}`,'整個假期投入企劃與剪輯，帳號穩定成長。');log(`假期經營社群：社群+${gg}、${s}`);doneW();});
+ addC(b,'🤸 報名體操教室加強特技','特技提升｜健康下降、疲勞上升',()=>{const r=d4()+1;
+  const gg=addA('acro',r),s=fx({hp:-rr(2,5),fat:rr(6,10)});res(true,`特訓成果 ▸ 特技 +${gg}`,'你在軟墊上摔了無數次，終於把後手翻做穩。');log(`特技加強：特技+${gg}、${s}`);doneW();});
+ addC(b,'🧘 專心學業與充分休息','壓力大減、健康回升、疲勞下降',()=>{
+  const s=fx({stress:-rr(18,26),hp:rr(8,13),fat:-rr(12,18)});res(true,'好好當個學生','你推掉所有外務，睡飽、讀書、跟朋友去看電影。');log('假期休息：'+s);doneW();});}
+function contract(b){recover();const grad=isSchool()&&S.age>=CFG.gradAge;
+ setTag(grad?'sch':'');T('eTitle',grad?'季末：畢業抉擇 — 升學、就業或職業邀約':'季末：年度結算與合約');
+ if(!isAma()&&S.contract>0)S.contract--;
+ if(!isAma()){S.years++;if(S.sideLg)S.sideYr++;
+  if(S.years>=5&&!S.flags.vet5){S.flags.vet5=1;log('🎖️ 元老：同隊滿 5 年，行動點 +1、體能訓練 +1！');}
+  if(S.years>=8&&!S.flags.vet8){S.flags.vet8=1;log('🏛️ 隊史傳奇：同隊滿 8 年！引退後可回任教練或總監。');}
+  if(S.years>=1)S.clubRel=clamp(S.clubRel+5,-50,50);}
+ const o=ovr();let inc=null;if(!isSchool())inc=settleIncome();
+ ui();
+ if(S.flags.farewell&&S.flags.fwYear===S.year){
+  T('eDesc',`完成了 ${S.year} 年賽季！\n${inc?incText()+'\n':''}\n🎆 引退巡迴之夜已走完全部主場 —— 這是你答應過球迷的最後一季。`);
+  addC(b,'🏁 完成引退儀式，結算生涯','',()=>ending('引退巡迴圓滿落幕，光榮掛靴'),'quit');save();return;}
+ let forced=null;
+ if(!isAma()){if(S.troll>=70)forced='troll';else if(S.clubRel<=-20)forced='rel';
+  else if(S.age>=34&&o<38)forced='age';}
+ let d=grad?`🎓 恭喜高中畢業！三年社團生涯結束，綜合評分 ${o}、粉絲 ${fanT(S.fans)}。\n從今年起你將正式面對職業合約與收入。\n`
+  :`完成了 ${S.year} 年賽季！\n${inc?incText()+'\n':''}`;
+ if(!isAma()&&!isSchool())d+=`同隊年數 ${S.years} 年　球團關係 ${S.clubRel}${S.rings?`　🏆 ${S.rings} 冠`:''}${S.sideLg?`\n🔀 兼任【${S.sideTeam}】第 ${S.sideYr} 年`:''}\n`;
+ if(forced==='troll'){d+='\n🔥 炎上解約：黑粉指數過高，球團宣布終止合約以平息輿論。';S.contract=0;log('強制解約：黑粉 ≥70。');}
+ else if(forced==='rel'){d+='\n❄️ 不予續約：球團關係惡化，總監明確表示不會再談約。';S.contract=0;log('不予續約：球團關係 ≤−20。');}
+ else if(forced==='age')d+='\n📉 續約條件緊縮：年齡與狀態下滑，球團僅願意談 1 年短約。';
+
+ /* 履約中：仍可能收到挖角報價 */
+ if(!isAma()&&S.contract>0&&!forced){
+  const P=S.flags.poach;
+  d+=`\n【履約中】與【${S.team}】尚有 ${S.contract} 年合約。`;
+  if(P)d+=`\n📨 【${P.t}】正式送出挖角報價，願意分攤一半違約金。`;
+  T('eDesc',d);
+  addC(b,`🤝 繼續履行合約 ▸ 【${S.team}】（剩餘 ${S.contract} 年）`,'球團關係提升｜穩定累積同隊年數',()=>{
+   S.flags.poach=null;const s=fx({rel:rr(2,5)});res(true,'繼續履約','你專心履行原球團長約，穩定備戰下一季。');log('繼續履約：'+s);doneWS();},'stay');
+  if(P){const cost=Math.round((25+S.contract*15)/2);
+   addC(b,`💸 接受【${P.t}】挖角（違約金 ${cost} 萬）`,
+    `${LG[P.k].name}｜口碑下降、死忠粉下降、球團關係歸零`,()=>{
+     const s=fx({money:-cost,rep:-rr(5,9),loyalPct:-.22});S.flags.poach=null;
+     if(sportOf(P.k)!==sportOf(S.sideLg||'')||!S.sideLg){}
+     if(S.sideLg&&sportOf(P.k)===sportOf(S.sideLg))dropSide();
+     log(`接受挖角轉隊（違約金 ${cost} 萬）：`+s);
+     sign(P.k,P.t,P.g,LG[P.k].first,P.d,0);},'poach');}
+  if(canSide()&&sideOffers().length){const so=sideOffers()[0];
+   addC(b,`🔀 另簽兼任【${so.t}】（${LG[so.k].sn}）`,'年收入增加、粉絲提升｜行動點 −1、疲勞與壓力上升',()=>{
+    signSide(so.k,so.t);const s=fx({fans:rr(7000,13000),rep:rr(2,6),stress:rr(5,9)});
+    res(true,`跨運動兼任成立：${S.team} ＋ ${so.t}`,`你的球季從此沒有空白月份。`);
+    log(`兼任【${so.t}】（${LG[so.k].sn}）：`+s);doneWS();},'side');}
+  if(S.age>=CFG.retireMin)retireB(b);
+  addC(b,'✂️ 提前解約（付違約金）',`違約金 ${25+S.contract*15} 萬｜口碑下降`,()=>{
+   const c=25+S.contract*15,s=fx({money:-c,rep:-rr(6,10)});dropSide();toFree('freelance','自由接案舞者');
+   res(false,'提前解約',`你付了 ${c} 萬違約金離開球團，成為自由身。`);log('提前解約：'+s);doneWS();});
+  save();ensure(b,'推進 ▸ 進入休賽期',()=>doneWS());return;}
+
+ d+=grad?'請決定畢業後的方向：':'\n【合約到期】可選擇的方向如下：';T('eDesc',d);
+ const entry=isAma()||['tvl','indieball'].includes(S.lg);
+ if(!isAma()&&!forced){const y=LG[S.lg].renew||2;
+  addC(b,`🤝 續留【${S.team}】（${y} 年約）`,`同隊第 ${S.years+1} 年｜球團關係提升`,()=>{
+   S.flags.poach=null;S.clubRel=clamp(S.clubRel+rr(5,8),-50,50);sign(S.lg,S.team,S.group,y,S.dualTeam,1);},'stay');}
+ else if(!isAma()&&forced==='age')addC(b,`🤝 續留【${S.team}】（1 年短約）`,'球團僅願意給 1 年｜球團關係提升',()=>{
+  S.clubRel=clamp(S.clubRel+rr(3,6),-50,50);sign(S.lg,S.team,S.group,1,S.dualTeam,1);},'stay');
+ /* 🇹🇼 返台選項 */
+ if(S.flags.wantHome||S.lg==='korea'||S.lg==='asia')homeOffers().forEach(h=>
+  addC(b,`🇹🇼 返台加入【${h.t}】（${LG[h.k].first} 年約）`,h.n,()=>{
+   S.flags.returned=1;const s=fx({rep:rr(4,9),loyal:rr(3000,6000),stress:-rr(8,14)});
+   log('決定返台發展：'+s);sign(h.k,h.t,h.g,LG[h.k].first,h.d,0);},'poach'));
+ upper().forEach(x=>addC(b,x.l+`（${LG[x.k].first} 年約）`,x.n,()=>sign(x.k,x.t,x.g,LG[x.k].first,x.d,0)));
+ if(!isAma()&&(S.clubRel<0||S.reputation>=70)){let a=null;
+  if(S.lg==='cpbl'){const g=GROUPS.filter(x=>x.cpbl!==S.team);if(g.length){const q=pick(g);a={t:q.cpbl,g:q.id,d:q.tpbl,n:q.name};}}
+  else if(S.lg==='tpbl'){const g=GROUPS.filter(x=>x.tpbl&&x.tpbl!==S.team);if(g.length){const q=pick(g);a={t:q.tpbl,g:q.id,d:null,n:q.name};}}
+  else if(S.lg==='tvl')a={t:pick(VOLLEY.filter(x=>x!==S.team)),g:null,d:null,n:'同級職排'};
+  else if(S.lg==='indieball'){const g=INDIE.filter(x=>x.name!==S.team);if(g.length){const q=pick(g);a={t:q.name,g:null,d:null,n:q.style};}}
+  else if(S.lg==='korea')a={t:pick(KOREA.filter(x=>x!==S.team)),g:null,d:null,n:'韓國同級'};
+  if(a)addC(b,`🔄 轉隊至同級【${a.t}】（${LG[S.lg].first} 年約）`,`${a.n}｜代價：死忠粉大幅下降、口碑下降`,
+   ()=>sign(S.lg,a.t,a.g,LG[S.lg].first,a.d,0));}
+ if(entry){addC(b,'🎓 升學／深造：大學舞社與體育大學','舞蹈提升、體能提升、口碑提升、壓力下降',()=>{
+   dropSide();toFree('university','大專體大舞社');const s=fx({dance:rr(2,4),stamina:rr(2,4),rep:rr(4,7),stress:-rr(4,8)});
+   res(true,'大學深造','系統化的課程與體能訓練讓你打下扎實基礎。');log('大學深造：'+s);doneWS();});
+  addC(b,'💼 社會斜槓：全職接案舞者與模特兒','資金增加、社群提升、魅力提升、粉絲提升',()=>{
+   dropSide();toFree('freelance','自由接案舞者');const s=fx({money:rr(8,14),social:rr(2,4),charm:rr(1,3),fans:rr(1600,2600)});
+   res(true,'社會斜槓','你在業界接商演、網拍與活動主持，累積了人脈。');log('自由接案：'+s);doneWS();});}
+ else if(!isAma())addC(b,'💼 轉為自由接案舞者','離開球團體系｜死忠粉下降',()=>{
+  const s=fx({loyalPct:-.2});dropSide();toFree('freelance','自由接案舞者');
+  res(true,'自由身','你暫時離開球團，以接案方式留在舞台上。');log('轉自由接案：'+s);doneWS();});
+ if(S.age>=CFG.retireMin)retireB(b);
+ save();ensure(b,'推進 ▸ 進入休賽期',()=>doneWS());}
+function retireB(b){addC(b,'🏁 考慮引退（結算生涯與第二人生）',
+ `目前稱號：${honor()}｜可選第二人生 ${routes().length} 條`,()=>askRetire(),'quit');}
+function askRetire(){const b=document.getElementById('cBox');b.innerHTML='';
+ setTag('dgr');T('eTitle','🏁 引退確認');
+ T('eDesc',`確定在 ${S.age} 歲結束應援生涯嗎？\n\n榮譽稱號：${honor()}\n生涯目標「${GOALS[S.goal].name}」：${GOALS[S.goal].chk(S)?'✅ 已達成':'❌ 尚未達成（'+GOALS[S.goal].desc+'）'}\n可選第二人生：${routes().map(r=>r.n).join('、')}`);
+ addC(b,'✅ 確認引退，選擇第二人生','',()=>ending(null),'go');
+ addC(b,'↩ 再拚一年','',()=>{S.winStep=0;renderWinter();});}
+function toFree(k,t){S.lg=k;S.team=t;S.group=null;S.contract=0;S.dual=false;S.dualTeam=null;S.clubRel=0;S.years=0;
+ const c=tCol(t);S.tc1=c?c[0]:null;S.tc2=c?c[1]:null;
+ const l=LG[k];if(l&&l.baseFans&&S.fans<l.baseFans)S.fans=l.baseFans;}
+function sign(k,t,g,y,dual,stay){const same=(S.team===t),tier=(S.lg===k&&!same);let pen='';
+ if(tier){const s=fx({loyalPct:-.3,rep:-rr(4,7)});pen=`　轉隊代價：${s}`;}
+ if(!same)S.years=0;
+ S.lg=k;S.team=t;S.group=g||null;S.contract=y;S.dual=!!dual;S.dualTeam=dual||null;
+ if(dual&&S.sideLg)dropSide();
+ if(S.sideLg&&sportOf(k)===sportOf(S.sideLg))dropSide();
+ const c=tCol(t);S.tc1=c?c[0]:null;S.tc2=c?c[1]:null;
+ if(!same)S.clubRel=clamp(S.clubRel,-10,10);
+ if(k==='korea')S.flags.korea=1;if(k==='asia')S.flags.asia=1;
+ S.flags.poach=null;S.flags.wantHome=0;
+ const l=LG[k];let fn='';
+ if(l&&l.baseFans&&S.fans<l.baseFans){const bf=S.fans;S.fans=l.baseFans;
+  fn=`　新舞台曝光使粉絲自 ${fanT(bf)} 提升至 ${fanT(S.fans)}。`;}
+ if(dual)res(true,`集團雙棲簽約：${t} ＆ ${dual}`,`簽下 ${y} 年棒籃雙棲長約，收入 +35%！（集團條款下不可另簽兼任）${fn}${pen}`);
+ else res(true,stay?`續留原隊：${t}`:`簽約成功：${t}`,
+  (stay?`你決定繼續留在熟悉的舞台，簽下 ${y} 年約。`:`你簽下 ${y} 年應援合約，正式成為【${t}】的一員！`)+fn+pen);
+ log(`${stay?'續約':'簽約'}：${t}${dual?' ＆ '+dual:''}，${y} 年約。`);doneWS();}
+function offseason(b){setTag('acc');const am=isAma();
+ T('eTitle',am?'季末：寒暑假行程與斜槓規劃':'季末：休賽期斜槓與行程規劃');
+ T('eDesc',am?'課餘與接案空檔終於空出來了！請規劃這段時間的重心：':`合約落幕，正式進入休賽期！${S.sideLg?`（兼任【${S.sideTeam}】的球季即將開始，休息時間有限）`:''}請規劃你的行程與副業重心：`);
+ addC(b,'📸 個人寫真集與品牌代言洽談',`依魅力分級（目前 ${S.charm}）：未滿 35 造型顧問、35 起網路小寫真、50 起正式寫真、65 起寫真＋年約代言`,()=>{
+  const c=S.charm;
+  if(c>=65){const s=fx({money:rr(74,106),fans:rr(34000,46000),loyal:rr(4800,7500),rep:rr(6,10),stress:rr(6,10)});
+   res(true,'頂級規格：寫真集 ＋ 年度代言','首刷完售並簽下年約代言，機場都掛著你的看板。');log('頂規寫真＋代言：'+s);}
+  else if(c>=50){const s=fx({money:rr(30,46),fans:rr(12000,18000),loyal:rr(2400,3800),stress:rr(4,8)});
+   res(true,'正式寫真集：登上銷售排行','首刷完售，代言與版稅進帳。');log('正式寫真集：'+s);}
+  else if(c>=35){const s=fx({money:rr(8,15),fans:rr(3800,6200),charm:1});
+   res(true,'網路小寫真：穩健起步','數位寫真在平台上賣得不錯，也累積了作品集。');log('網路小寫真：'+s);}
+  else{const v=Math.max(1,d4()-1),g=addA('charm',v),s=fx({rep:rr(1,3)});
+   res(true,`造型顧問建議 ▸ 魅力 +${g}`,'出版社暫不接案，但幫你做了一次完整的造型診斷與鏡頭訓練。');
+   log(`寫真提案未成，獲造型指導：魅力+${g}、${s}`);}doneW();});
+ addC(b,'🏋️ 深度進修與身體修復','費用 4 萬｜健康回升、疲勞大減、壓力下降、舞蹈與體能提升',()=>{
+  if(S.money>=4){const s=fx({money:-4,hp:rr(12,18),fat:-rr(22,28),stress:-rr(16,24),dance:1,stamina:1});
+   res(true,'充分修復','你推掉行程，安排物理治療與小班舞蹈課，狀態明顯回升。');log('深度修復：'+s);}
+  else{const s=fx({stress:-rr(6,10),fat:-rr(8,13)});res(false,'資金不足，改為居家休息','沒有預算安排課程，只能在家躺平。');log('居家休息：'+s);}doneW();});
+ addC(b,'🎬 綜藝節目與大型活動主持通告','資金增加、粉絲提升、主持提升、口碑提升｜疲勞與壓力上升',()=>{
+  const s=fx({money:rr(11,18),fans:rr(3800,6200),host:1,fat:rr(10,15),stress:rr(6,10),rep:rr(2,5)});
+  res(true,'跨界曝光','你在節目上的反應與口條意外亮眼，通告接連而來。');log('綜藝通告：'+s);
+  if(vitals())return;doneW();});
+ if(canSide()&&sideOffers().length)sideOffers().slice(0,1).forEach(so=>
+  addC(b,`🔀 休賽期簽下兼任【${so.t}】（${LG[so.k].sn}）`,'年收入增加、粉絲提升｜行動點 −1、疲勞與壓力上升',()=>{
+   signSide(so.k,so.t);const s=fx({fans:rr(7000,13000),rep:rr(2,6),stress:rr(5,9)});
+   res(true,`跨運動兼任成立：${S.team} ＋ ${so.t}`,'你的兩個球季正好錯開 —— 理論上可行，實際上很累。');
+   log(`兼任【${so.t}】（${LG[so.k].sn}）：`+s);doneW();},'side'));
+ if(S.host>=45)addC(b,'📚 考取啦啦隊教練證照','費用 9 萬｜主持提升、口碑大增｜主持訓練永久 +1',()=>{
+  if(S.money>=9){S.flags.coachCert=1;const s=fx({money:-9,host:rr(1,3),rep:rr(8,13)});
+   res(true,'教練證到手','你在受訓期間發現，教別人跳跟自己跳是完全不同的技能。');log('取得教練證（主持訓練 +1）：'+s);}
+  else res(false,'資金不足 9 萬','報名費差一點，只能等明年。');doneW();});
+ if(S.social>=45)addC(b,'📱 自創電商品牌（服飾／飾品）',`資本額 45 萬｜檢定：社群｜難度 ${DF(20)}｜成功後社群訓練 +1`,()=>{
+  if(S.money>=45){S.money-=45;const c=chk('social',20);
+   if(c.ok){S.flags.bizOk=1;const s=fx({money:rr(115,165),fans:rr(9500,15000)});
+    res(true,c.txt,'你的聯名系列三天完售，第二批直接追加工廠產能。');log('電商品牌大賣（社群訓練 +1）：'+s);}
+   else{const s=fx({money:rr(24,40),stress:rr(8,13)});res(false,c.txt,'庫存壓在倉庫裡，只能出清回收部分成本。');log('電商品牌滯銷：'+s);}}
+  else res(false,'資金不足，需要 45 萬','資本額不夠，計畫先擱著。');doneW();});
+ addC(b,'🏬 投資實體副業：手搖飲／咖啡品牌',`資本額 80 萬｜檢定：社群｜難度 ${DF(24)}`,()=>{
+  if(S.money>=80){S.money-=80;const c=chk('social',24);
+   if(c.ok){const s=fx({money:rr(215,305)});res(true,c.txt,'品牌憑社群聲量開出 10 家加盟店，單季分紅狂賺。');log('實體副業大成功：'+s);}
+   else{const s=fx({money:rr(52,80),stress:rr(8,13)});res(false,c.txt,'市場競爭激烈，勉強打平保本。');log('實體副業打平：'+s);}}
+  else res(false,'資金不足，需要 80 萬','積蓄不夠支付租金與加盟金。');doneW();});
+ addC(b,'🌴 出國長假，徹底離開舞台一個月','費用 15 萬｜壓力大減、健康回升、疲勞大減',()=>{
+  if(S.money>=15){const s=fx({money:-15,stress:-rr(30,40),hp:rr(15,21),fat:-rr(26,34)});
+   res(true,'徹底放空','一個月沒開社群，回來時發現自己還是想跳舞。');log('出國長假：'+s);}
+  else{const s=fx({stress:-rr(9,15),fat:-rr(12,18)});res(false,'預算不足，改為國內小旅行','三天兩夜也夠讓你喘口氣。');log('國內小旅行：'+s);}doneW();});
+ addC(b,'🤝 公益活動與校園巡迴演講','無風險：口碑大增、死忠粉提升',()=>{
+  const s=fx({rep:rr(8,13),loyal:rr(2000,3200),fat:rr(4,8)});res(true,'回饋社會','你在十所學校講了同一段話，每次都有人眼睛在發亮。');log('公益巡迴：'+s);doneW();});
+ if(S.age>=CFG.retireMin)retireB(b);
+ save();ensure(b,'推進 ▸ 進入下一年',()=>nextPhase());}
+function honor(commit){let t;
+ const lg=S.flags.hard&&((LG[S.lg].rank||0)>=4||S.fans>=100000);
+ if(commit&&lg)S.flags.legend=1;
+ if(lg)t="🔥 凡人傳說・逆風登頂的苦命種子";
+ else if(S.flags.hof)t="🏛️ 應援名人堂成員";
+ else if(S.rings>=3)t="💍 三冠加冕的應援女王";
+ else if(S.flags.asia)t="🌏 亞洲聯合舞台總召";
+ else if(S.flags.crossSport&&S.rings>=1)t="🔀 橫跨兩種球場的全能應援員";
+ else if(S.flags.returned&&S.flags.korea)t="🇹🇼 海歸返台的跨海應援天后";
+ else if(S.flags.tookFlag&&S.reputation>=70)t="🎽 大旗傳承的精神領袖";
+ else if(S.fans>=200000&&S.careerIncome>=1200)t="👑 殿堂級應援天后";
+ else if(S.flags.korea)t="🇰🇷 韓流跨海應援天后";
+ else if(S.flags.vet8)t="🏛️ 一隊一生的隊史傳奇";
+ else if(S.flags.cpblC)t="⚾ CPBL 主題日 C 位王牌";
+ else if(S.dual)t="⚾🏀 企業集團親女兒（雙棲天后）";
+ else if(S.flags.crossSport)t="🔀 跨運動兼任的鐵人應援員";
+ else if(S.flags.wonCase)t="⚖️ 為同業立下判例的先行者";
+ else if(S.troll>=80)t="🔥 炎上退隊的話題女王";
+ else if(S.reputation>=85)t="🏅 業界公認的模範前輩";
+ else if(S.fans>=50000)t="✨ 人氣看板應援女神";
+ else if(S.careerIncome>=400)t="💼 副業經營有成的斜槓舞者";
+ else if(isSchool())t="🎒 停在校園舞台的青春回憶";
+ else t="🌸 圓滿引退的閃耀青春";
+ if(S.flags.farewell)t="🎆 "+t;
+ return(S.flags.hard&&!lg)?'逆風・'+t:t;}
+function routes(){const R=[];
+ if(S.money>=150&&S.dance>=58)R.push({k:'studio',n:'🏫 舞蹈教室老闆',c:'資金 150 萬＋舞蹈 58',
+  ep:()=>`你在熟悉的城市租下三層樓，招牌自己設計。\n第二年，教室的少年組拿下全國冠軍；第三年開了第一間分校。\n有個學生在頒獎台上說：「我是看${S.name}老師的影片才開始跳舞的。」`});
+ if((S.reputation>=75&&S.years>=5)||S.flags.coachTrack||S.flags.coachCert)R.push({k:'coach',n:'📣 啦啦隊教練／總監',c:'口碑 75＋同隊 5 年，或恩師線／證照',
+  ep:()=>`你回到${S.team}，這次坐在教練席。\n你把當年學到的「一個八拍練兩百次」原封不動教下去，被新人私下抱怨很嚴格。\n三年後，你帶出的 C 位站上主題日中央，散場時對著你的方向鞠了一躬。`});
+ if(S.flags.crossSport)R.push({k:'multi',n:'🔀 多聯盟應援總策劃',c:'曾跨運動兼任',
+  ep:()=>`你成為少數同時懂棒球、籃球與排球節奏的策劃人，三個聯盟都請你調度應援。\n你做的第一件事，是幫兼任的後輩把兩邊的行程表整合成一份。\n「當年沒人幫我排，」你說，「所以我自己來。」`});
+ if(S.flags.hof||S.rings>=2)R.push({k:'legend',n:'🏛️ 聯盟名譽顧問',c:'名人堂或 2 座冠軍',
+  ep:()=>`聯盟聘你當名譽顧問，負責制定應援員的合約範本與勞動條件。\n你把當年沒人幫你爭的東西，一條一條寫進規章裡。\n五年後，新人的首約年限比你那時多了兩年。`});
+ if(S.host>=52&&S.fans>=50000)R.push({k:'tv',n:'📺 綜藝藝人／主持人',c:'主持 52＋粉絲 5 萬',
+  ep:()=>`你從嘉賓變成固定主持，第二年拿到一檔運動綜藝的棚內主持棒。\n第三年入圍金鐘綜藝節目主持人獎，紅毯上有人喊你「前應援天后」，你笑著回：「現在是主持人。」`});
+ if(S.social>=55&&S.fans>=100000)R.push({k:'kol',n:'📱 全職網紅／直播主',c:'社群 55＋粉絲 10 萬',
+  ep:()=>`你把應援的節奏感搬進直播間，業配接到要排隊。\n第二年因為一支選品影片被出征，你花了三天把每個質疑逐條回完——這招你在球場學過。\n第三年開了自己的 MCN，簽下五個新人。`});
+ if(S.reputation>=70&&S.money>=80)R.push({k:'agent',n:'💼 運動經紀人',c:'口碑 70＋資金 80 萬',
+  ep:()=>`你成立了一家小型經紀公司，專門接應援員與運動員的合約。\n你替新人談下的第一份合約，年限比你當年多兩年、條件好三倍。\n她哭著問為什麼幫她爭這麼多，你說：「因為當年沒人幫我爭。」`});
+ if(S.flags.korea||S.flags.overseas||S.flags.asia)R.push({k:'kdir',n:'🌏 海外舞蹈總監',c:'韓國／亞洲舞台或海外交流經歷',
+  ep:()=>`你在首爾與台北之間來回，先接應援團編舞，後來被電視台挖去做打歌舞台。\n第三年你負責的年末大賞舞台上了海外熱搜。\n記者問你從哪裡學的，你說：「台灣的球場。」`});
+ if(S.flags.dating)R.push({k:'family',n:'💍 走入婚姻／家庭',c:'交往線達成',
+  ep:()=>`婚禮上你們放了應援時期的照片牆，隊友哭得比你還兇。\n你偶爾還是會在客廳跟著音樂比幾個八拍，家裡的小孩學得比你想像中快。\n平凡，而且完整。`});
+ R.push({k:'daily',n:'🏢 回歸日常生活',c:'無條件（保底）',
+  ep:()=>`你找了一份離家近的工作，週末偶爾回球場坐在觀眾席。\n新一代的應援員在場邊跳著你不認識的編舞，你跟著拍了兩下手。\n離開舞台的人生，也是人生。`});
+ return R;}
+function ending(reason){if(S.ended)return;S.ended=true;S.retireAge=S.age;
+ ui();setTag('lgd');T('eTitle',reason?`🏁 ${reason}`:'🏁 引退：選擇你的第二人生');
+ const t=honor(true);S.flags.finalTitle=t;const TT=TI();
+ T('eDesc',`【生涯結算】
+${S.name}　${S.age} 歲（${S.year} 年）掛靴引退
+種子碼 ${S.seed}（${TT.ic} ${TT.n}）
+引退原因：${reason||'主動宣布引退'}
+榮譽稱號：【${t}】
+
+最終隊伍：${S.team}${S.dualTeam?` ＆ ${S.dualTeam}`:''}（同隊 ${isAma()?'—':S.years} 年）${S.sideTeam?`\n跨運動兼任：${S.sideTeam}（${LG[S.sideLg].sn}・${S.sideYr} 年）`:''}
+階梯層級：${isSchool()?`高中舞社 ${grade()}`:LG[S.lg].name}　定位：${S.pos}
+🏆 冠軍戒指 ${S.rings} 座${S.flags.hof?'　🏛️ 名人堂成員':''}
+粉絲 ${fanT(S.fans)}　死忠粉 ${fanT(S.loyalFans)}
+生涯總收入 ${S.careerIncome} 萬　結餘 ${S.money} 萬
+口碑 ${S.reputation}　黑粉 ${S.troll}${isAma()?'':`　球團關係 ${S.clubRel}`}
+六維：體 ${S.stamina}／舞 ${S.dance}／魅 ${S.charm}／主 ${S.host}／社 ${S.social}／技 ${S.acro}
+
+🎯 生涯目標「${GOALS[S.goal].name}」：${GOALS[S.goal].chk(S)?'✅ 達成！':'❌ 未達成'}
+
+請選擇你的第二人生：`);
+ hideRes();clearSave();const b=document.getElementById('cBox');b.innerHTML='';
+ routes().forEach(r=>addC(b,r.n,'條件：'+r.c,()=>epi(r)));
+ log(`生涯結束：${reason||'主動引退'}｜稱號 ${t}`);}
+function epi(r){S.second=r.k;const ok=GOALS[S.goal].chk(S),TT=TI();
+ setTag('ok');T('eTitle',`📖 第二人生：${r.n}`);
+ T('eDesc',`${r.ep()}\n\n─────────────\n🎯 生涯目標「${GOALS[S.goal].name}」：${ok?'✅ 達成':'❌ 未達成'}\n🏆 榮譽稱號：【${S.flags.finalTitle}】\n📅 ${CFG.startYear} → ${S.year}　共 ${S.year-CFG.startYear} 年的應援人生\n🌍 種子碼：${S.seed}（${TT.ic} ${TT.n}）\n─────────────\n${ok?'你走到了自己當初設定的地方。':'路和你想的不一樣，但那也是你的路。'}\n${S.name}，辛苦了。`);
+ const b=document.getElementById('cBox');b.innerHTML='';
+ addC(b,'🖼️ 產生生涯卡片並儲存圖片','PNG 圖檔，可直接貼到社群',()=>saveCard(),'shr');
+ addC(b,'↺ 重啟全新傳奇人生','',()=>location.reload(),'go');
+ log(`第二人生：${r.n}｜目標${ok?'達成':'未達成'}`);}
+</script>
+</body>
+</html>
