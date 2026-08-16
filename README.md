@@ -11,7 +11,7 @@
 [![Platform](https://img.shields.io/badge/platform-Web%20%7C%20Mobile%20First-blue)]()
 [![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-lightgrey)](./LICENSE)
 
-### ▶︎ [立即遊玩](https://你的網址)　|　📘 [完整設定 Wiki](./docs/WIKI.md)　|　📝 [更新日誌](./CHANGELOG.md)
+### ▶︎ [立即遊玩](https://jarvanthevoyager.github.io/CheerLife/))　|　📘 [完整設定 Wiki](./wiki.md)　|　📝 [更新日誌](./CHANGELOG.md)
 
 </div>
 
