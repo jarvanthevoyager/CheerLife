@@ -33,12 +33,7 @@
 - 上限：**42 歲**（最長 78 個決策階段）
 - 每一次選擇都不可回溯，**相同種子 + 相同選擇 = 完全相同的一生**
 
-<div align="center">
-<!-- ← 替換成你的實際截圖 -->
-<img src="./docs/screenshots/stage.png" width="30%">
-<img src="./docs/screenshots/status.png" width="30%">
-<img src="./docs/screenshots/card.png" width="30%">
-</div>
+
 
 ---
 
