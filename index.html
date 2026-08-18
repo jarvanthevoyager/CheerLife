@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0e1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>啦啦隊人生模擬器 V1.1</title>
+<title>啦啦隊人生模擬器 V1.1.1</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📣</text></svg>">
 <style>
 :root{--bg:#0a0e1a;--bg2:#0e1424;--card:#151d2e;--line:#283244;--line2:#374357;
@@ -160,6 +160,14 @@ border:1px solid rgba(251,113,133,.3);border-radius:var(--r2)}
 .bd-e{color:#6ee7b7;border-color:rgba(16,185,129,.45);background:rgba(16,185,129,.1)}
 .bd-r{color:#fca5a5;border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.1)}
 .bd-t{color:var(--s1r);border-color:rgba(20,184,166,.5);background:rgba(20,184,166,.12)}
+.bd-ag{color:#e2e8f0;border-color:rgba(226,232,240,.5);background:rgba(226,232,240,.1)}
+.bd-cu{color:#fdba74;border-color:rgba(253,186,116,.5);background:rgba(253,186,116,.12)}
+.bd.tap{cursor:pointer}
+.bd.tap:active{filter:brightness(1.3)}
+.bd.sel{box-shadow:0 0 0 2px var(--t1r)}
+#hallTip{display:none;margin:10px 0 2px;padding:11px 13px;border-radius:var(--r2);
+ background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.42);
+ font-size:.75rem;line-height:1.8;color:var(--sub);word-break:break-word}
 .yr{font-size:.66rem;font-weight:900;color:var(--dim);letter-spacing:1.4px;margin:12px 0 7px;
 position:sticky;top:0;background:linear-gradient(var(--card) 60%,rgba(21,29,46,.85));padding:3px 0}
 .yr:first-child{margin-top:0}
@@ -313,7 +321,7 @@ font-family:inherit;font-size:.88rem;font-weight:800}
   <button class="nb" id="n3" onclick="go(3)"><em>📜</em>歷程</button></nav>
 </div></div>
 <div id="toast"></div>
-<div id="mask"><div class="dlg"><h3 id="dTitle"></h3><p id="dMsg"></p>
+<div id="mask"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dTitle" aria-describedby="dMsg"><h3 id="dTitle"></h3><p id="dMsg"></p>
  <div class="r"><button type="button" class="no" id="dNo">取消</button>
   <button type="button" class="yes" id="dYes">確定</button></div></div></div>
 <script>
@@ -333,21 +341,27 @@ const clamp=(v,lo=0,hi=100)=>Math.max(lo,Math.min(hi,v));
 const CFG={startAge:16,startYear:2026,maxAge:42,gradAge:18,floor:10,hardCap:80,absCap:92,retireMin:22};
 const INFL_RATE=.028,MICRO_BASE=.10,BURN_LIMIT=3;
 const OVR_W={stamina:.17,dance:.24,charm:.20,host:.13,social:.16,acro:.10};
-const MB_BY_SEED=[6,4,6,8,12];   /* 💀 苦命的資質上限低 8，用更多鑽研次數當補償 */
+const MB_BY_SEED=[10,4,6,8,12];  /* 💀 苦命資質上限低 8：改以「突破 +2 上限、門檻 −1」補償 */
 const UPK={agent:30,house:6,car:4,insure:12};
 const TRAINEE_PAY=.45,TRAINEE_GAME=.5;
-
-function randAll(){genName();randType(1);randGoal(1);genSeed();
- const e=document.getElementById('bStart');
- if(e)e.scrollIntoView({behavior:'smooth',block:'center'});}
 
 /* ── 自製確認視窗 ── */
 function ask(title,msg,onYes,yesTxt,noTxt){
  const m=document.getElementById('mask');T('dTitle',title);T('dMsg',msg);
  const y=document.getElementById('dYes'),n=document.getElementById('dNo');
  y.textContent=yesTxt||'確定';n.textContent=noTxt||'取消';
- const close=()=>{m.classList.remove('on');y.onclick=null;n.onclick=null;};
- y.onclick=()=>{close();onYes&&onYes();};n.onclick=close;m.classList.add('on');}
+ const prev=document.activeElement;
+ const close=()=>{m.classList.remove('on');y.onclick=null;n.onclick=null;
+  document.removeEventListener('keydown',key);m.removeEventListener('click',bg);
+  document.body.style.overflow='';if(prev&&prev.focus)prev.focus();};
+ const key=e=>{if(e.key==='Escape'){e.preventDefault();close();}
+  else if(e.key==='Tab'){const f=[n,y],i=f.indexOf(document.activeElement);
+   e.preventDefault();f[(i+(e.shiftKey?-1:1)+f.length)%f.length].focus();}};
+ const bg=e=>{if(e.target===m)close();};
+ y.onclick=()=>{close();onYes&&onYes();};n.onclick=close;
+ document.addEventListener('keydown',key);m.addEventListener('click',bg);
+ document.body.style.overflow='hidden';m.classList.add('on');
+ setTimeout(()=>{try{n.focus();}catch(e){}},30);}
 
 /* ── ② 可讀色推導：解決深色隊伍主色當文字看不見 ── */
 const hex2rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
@@ -429,7 +443,8 @@ const TIERN=['未達成','🥉 銅','🥈 銀','🥇 金'];
 
 const SEED_TIER=[
  {k:-1,n:'苦命種子',ic:'💀',start:-6,cap:-8,floor:0,cls:'bd-r',
-  say:'體檢報告我看完了……你確定要走這條路？',ab:'🔥 不服輸：行動點 +1、恢復效率 +30%、徵選 +1'},
+  say:'體檢報告我看完了……你確定要走這條路？',
+  ab:'🔥 不服輸：行動點 +1、恢復效率 +30%、徵選 +1、聯盟門檻減免 +4\n💠 鑽研狂：突破門檻 −1，且每次突破推高 2 點上限（上限 10 次 → 最多 +20）'},
  {k:0,n:'平凡種子',ic:'⚪',start:0,cap:0,floor:0,cls:'bd-s',say:'底子中規中矩，剩下的看你願意練多少。',ab:''},
  {k:1,n:'天才種子',ic:'🌟',start:8,cap:8,floor:0,cls:'bd-g',say:'這孩子的節奏感，是天生的。',ab:'📈 悟性：訓練與鑽研 +1'},
  {k:2,n:'神童種子',ic:'💎',start:14,cap:12,floor:74,cls:'bd-p',say:'十年才會出現一個這樣的身體。',ab:'📈 悟性 ＋ 🚀 早熟（20 歲前訓練 +2）'},
@@ -443,7 +458,7 @@ const capShown=k=>!!(S.flags.capShown&&S.flags.capShown[k]);
 function tryReveal(k){if(capShown(k))return false;
  if(S[k]>=cap(k)-6){S.flags.capShown[k]=1;return true;}return false;}
 const MB=()=>MB_BY_SEED[S.flags.tier??1];
-const mastT=k=>4+1.5*(S.brkN[k]||0);
+const mastT=k=>Math.max(3,Math.ceil(4+1.5*(S.brkN[k]||0))-(S.flags.hard?1:0));
 
 function defStat(){return{trainCnt:{},checkOk:0,checkNg:0,maxStress:0,minHealth:100,
  trollPeak:0,peakOVR:0,ranks:{},catCnt:0,spend:0,microSeen:0,transfers:0,noInjury:1};}
@@ -461,10 +476,10 @@ function newState(){return{name:"林小葵",seed:"",prng:12345,type:"dancer",goa
  reputation:50,clubRel:0,dual:false,dualTeam:null,
  trainee:0,tryTries:{},tryPass:{},cSeason:0,cTotal:0,
  form:45,ps:0,psStep:0,rival:null,owned:{},
- ap:3,maxAp:3,ended:false,retireAge:null,second:null,
+ ap:3,maxAp:3,op:2,maxOp:2,streams:[],ended:false,retireAge:null,second:null,
  lastK:null,streak:0,rot:[],inc:null,recent:[],
  tick:0,lastSeen:{},seen:{},chain:{rival:0,mentor:0,spon:0,tboss:0},
- ach:{},stat:defStat(),flags:{},logs:[]};}
+ ach:{},stat:defStat(),flags:{capShown:{}},logs:[]};}
 let S=newState();
 
 /* ── 隨機 ── */
@@ -579,6 +594,7 @@ const FN=['','I','II','III'];
 function trainBuff(k){let b=0;const s=[];
  if(S.flags.mentorDone&&k==='dance'){b++;s.push('師承');}
  if(S.flags.coachCert&&k==='host'){b++;s.push('教練證');}
+ if(S.flags.voiceOk&&k==='host'){b++;s.push('發言人歷練');}
  if((S.flags.overseas||S.flags.korea)&&k==='acro'){b++;s.push('海外經歷');}
  if(S.flags.actress&&k==='charm'){b++;s.push('戲劇歷練');}
  if(S.flags.bizOk&&k==='social'){b++;s.push('品牌經營');}
@@ -614,10 +630,12 @@ function doTrain(k){const t=trainMod(k),roll=d4();let g=Math.max(1,roll+t.m),cri
  if(S.trainee>0&&ex.fat)ex.fat=Math.round(ex.fat*.8);   /* ▼ P6 練習生密訓：疲勞 −20% */
  const atCap=S[k]>=cap(k);
  if(atCap&&(S.brkN[k]||0)<MB()){
-  const gain=rr(4,7)+((S.flags.tier??1)>=2?1:0)+(S.owned.choreo?1:0);
+  const gain=rr(4,7)+((S.flags.tier??1)>=2?1:0)+((S.owned.choreo||S.flags.choreo)?1:0)
+   +((S.flags.pureDancer&&k==='dance')?1:0);
   S.mast[k]=(S.mast[k]||0)+gain;const need=mastT(k);
   if(S.mast[k]>=need){S.mast[k]-=need;S.brkN[k]=(S.brkN[k]||0)+1;
-   S.pot[k]=Math.min(CFG.absCap,S.pot[k]+1);brk=true;}
+   /* ▼ 💀 苦命：每次突破推高 2 點，補償先天 −8 的資質上限 */
+   S.pot[k]=Math.min(CFG.absCap,S.pot[k]+(S.flags.hard?2:1));brk=true;}
   mast={gain,need};
   if(ex.fat)ex.fat=Math.round(ex.fat*.5);
   if(ex.hp)ex.hp=Math.round(ex.hp*.5);
@@ -837,6 +855,28 @@ const EV=[
     log:'與同期結為戰友：'+fx({stress:-rr(8,13),loyal:rr(200,500)})};}},
  {t:'【暗自較勁】把她當標準超越',d:'舞蹈提升｜壓力上升',run:()=>({ok:1,calc:'暗中競爭',
    story:'你把她的影片逐格看完，然後練到教室關門。',log:'暗中較勁：'+fx({dance:rr(2,4),stress:rr(5,9)})})}]},
+{id:'try_mate2',where:['amateur','pro'],w:11,cd:99,once:1,tag:'ok',
+ cond:()=>!!S.flags.classmate&&S.age>=21&&!S.flags.mateAlly,
+ title:()=>'🤝 當年那個同期的訊息',
+ desc:()=>'手機跳出一則久違的訊息：「我上了。」\n是那個跟你同一天報名、在便利商店門口跟你碰拳的女生。她進了另一支球團的正式名單。\n那句「不管誰先上，都要撐下去」還留在對話紀錄的最上面。',
+ ch:()=>{const out=[
+  {t:'【真心祝賀】約她吃一頓飯',d:'壓力大幅下降、死忠粉提升、口碑提升',
+   run:()=>{S.flags.mateAlly=1;
+    return{ok:1,calc:'約定還在',story:'你們吃了三個小時，把這幾年的事情從頭講了一遍。\n離開前她說：「換你了。」',
+     log:'與同期戰友重逢：'+fx({stress:-rr(12,18),loyal:rr(800,1600),rep:rr(4,8)})};}},
+  {t:'【請她傳授經驗】把徵選的細節問到底',d:`檢定：社群｜難度 ${DF(16)}｜成功後徵選永久 +2`,
+   run:()=>{const c=chk('social',16);S.flags.mateAlly=1;
+    if(c.ok){S.flags.mateTip=1;
+     return{ok:1,calc:c.txt+'　（此後公開徵選修正 +2）',
+      story:'她把三輪的評分表默寫給你，連評審坐的位置都畫了出來。',
+      log:'取得同期的徵選情報（徵選 +2）：'+fx({host:1,social:1,stress:-rr(4,9)})};}
+    return{ok:0,calc:c.txt,story:'她講得很含糊。也許球團有規定，也許她只是不想說。',
+     log:'情報交換未果：'+fx({stress:rr(3,7)})};}}];
+ if(!OFF())out.push({t:'【先不回】等自己也上了再說',d:'舞蹈提升｜壓力上升',
+  run:()=>{S.flags.mateAlly=1;
+   return{ok:1,calc:'把話留著',story:'你把訊息標成未讀，然後回到練習室。\n你想等到能用同一句話回她的那天。',
+    log:'暫不回覆同期：'+fx({dance:rr(2,4),stress:rr(5,9)})};}});
+ return out;}},
 {id:'tn_bench',where:['pro'],w:14,cd:2,cond:()=>TRN(),tag:'warn',
  title:()=>'🪑 練習生的第一年',
  desc:()=>`你穿著隊服，但站在場邊。正式成員上場時，你負責遞水與收彩球。`,
@@ -911,8 +951,8 @@ const EV=[
     log:g?'🎟️ 進入季後賽：'+fx({fans:rr(4000,7000)}):'季後賽落空：'+fx({stress:rr(5,10)})};}}]},
 {id:'tamper',where:['pro'],w:10,cd:4,cond:()=>OFF()&&S.contract>0&&(ovr()>=42||S.fans>=25000),tag:'warn',
  title:()=>'🕵️ 合約期內的接觸',
- desc:()=>{const t=poachTarget();return `一位不具名的球團幹部在飯店咖啡廳約你見面：「我們知道你還有 ${S.contract} 年約，但${t?`【${t.t}】`:'我們'}願意等，也願意處理違約金。」\n你不確定這樣算不算違規，但很清楚傳出去就是麻煩。`;},
- ch:()=>{const t=poachTarget(),out=[];
+ desc:()=>{const t=tampOffer();return `一位不具名的球團幹部在飯店咖啡廳約你見面：「我們知道你還有 ${S.contract} 年約，但${t?`【${t.t}】`:'我們'}願意等，也願意處理違約金。」\n你不確定這樣算不算違規，但很清楚傳出去就是麻煩。`;},
+ ch:()=>{const t=tampOffer(),out=[];
   if(t)out.push({t:`📝 留下聯絡方式（目標：${t.t}）`,d:'季末將出現挖角報價｜球團關係下降、壓力上升',
    run:()=>{S.flags.poach={k:t.k,t:t.t,g:t.g,d:t.d,yr:S.year};
     return{ok:1,calc:'密會結束',story:`你收下了名片。對方說：「季末我們會正式送出報價。」`,
@@ -1001,14 +1041,61 @@ const EV=[
    run:()=>{S.flags.vetRole='coach';S.flags.coachTrack=1;
     return{ok:1,calc:'走向幕後的第一步',story:'你開始寫排練表，也開始被叫「老師」。有點不習慣。',
      log:'選擇隊內指導路線（解鎖教練第二人生）：'+fx({host:rr(2,4),rel:rr(10,15),rep:rr(6,10)})};}},
-  {t:'📣 成為對外發言人與門面',d:'社群與主持提升、粉絲大增｜壓力上升',
+  {t:'📣 成為對外發言人與門面',d:'解鎖發言人路線｜社群與主持提升、粉絲大增｜壓力上升',
    run:()=>{S.flags.vetRole='voice';
     return{ok:1,calc:'把麥克風接下來',story:'從今年開始，所有的採訪、記者會與危機說明都由你出面。',
      log:'選擇對外發言人路線：'+fx({social:rr(1,3),host:rr(1,3),fans:rr(12000,20000),rep:rr(5,9),stress:rr(6,10)})};}},
-  {t:'💃 什麼都不接，我只想跳舞',d:'舞蹈提升、死忠粉大增｜球團關係小幅下降',
+  {t:'💃 什麼都不接，我只想跳舞',d:'解鎖純舞者路線｜舞蹈提升、死忠粉大增｜球團關係小幅下降',
    run:()=>{S.flags.vetRole='dancer';
     return{ok:1,calc:'純粹的選擇',story:'「我還沒跳完。」總監沉默了三秒，然後把表收起來。',
      log:'選擇繼續當純舞者：'+fx({dance:rr(2,4),loyal:rr(3000,5500),rel:-rr(2,5),stress:-rr(4,8)})};}}]},
+{id:'vet_voice',where:['pro'],w:14,cd:99,once:1,tag:'dgr',
+ cond:()=>OFF()&&S.flags.vetRole==='voice'&&S.age>=30,
+ title:()=>'📣 三十分鐘後開始的記者會',
+ desc:()=>`凌晨兩點，公關部把你叫醒 —— 【${S.team}】的母企業出了事，明天全隊的行程都會被媒體盯上。\n總監只說了一句：「妳是發言人。」\n桌上放著一份三頁的稿子，還有一支還沒開的麥克風。`,
+ ch:()=>[
+  {t:'🎤 把稿子放下，照實回答每一個問題',d:`檢定：主持｜難度 ${DF(20)}｜主持訓練 +1`,
+   run:()=>{const c=chk('host',20);
+    if(c.ok){S.flags.voiceOk=1;
+     return{ok:1,calc:c.txt+'　（此後主持訓練 +1、解鎖運動經紀人第二人生）',
+      story:'你講了四十七分鐘，沒有一句「無可奉告」。\n隔天的頭條寫的是你的名字，但內容是「這個產業終於有人願意講話」。',
+      log:'📣 記者會照實回答（主持訓練 +1）：'+fx({host:rr(2,4),rep:rr(14,20),fans:rr(18000,28000),loyal:rr(3000,5500),stress:rr(8,13)})};}
+    return{ok:0,calc:c.txt,
+     story:'你在第十二個問題卡住了，那三秒被剪成十五秒的循環播放。\n公關部沒有怪你，但也沒有再讓你出面。',
+     log:'記者會失守：'+fx({troll:rr(12,18),rep:-rr(4,8),stress:rr(14,20),rel:-rr(3,7)})};}},
+  {t:'📄 照著稿子念完，一個字都不加',d:'球團關係大幅提升｜口碑下降、黑粉上升、壓力上升',
+   run:()=>({ok:1,calc:'守住立場',
+    story:'你把三頁稿子念得很穩，一次都沒有停頓。散場後高層跟你握了手。\n留言區問的是同一句：「妳自己相信嗎？」',
+    log:'照稿發言：'+fx({rel:rr(12,18),troll:rr(8,13),rep:-rr(5,9),stress:rr(6,11)})})},
+  {t:'🙅 交回麥克風 —— 我不是公司的嘴',d:'壓力大幅下降、口碑提升｜球團關係大幅下降',
+   run:()=>{S.flags.vetRole='dancer';
+    return{ok:1,calc:'把位置退回去（改回純舞者路線）',
+     story:'你把稿子放回桌上：「這件事不該由跳舞的人來說。」\n總監收回了發言人的職務。你睡了三年來最好的一覺。',
+     log:'辭去發言人職務（改回純舞者路線）：'+fx({rel:-rr(10,16),rep:rr(4,8),stress:-rr(12,18)})};}}]},
+{id:'vet_dancer',where:['pro'],w:14,cd:99,once:1,tag:'lgd',
+ cond:()=>OFF()&&S.flags.vetRole==='dancer'&&S.age>=32,
+ title:()=>'💃 「學姐為什麼還不退到幕後？」',
+ desc:()=>`收操的時候，隊裡最小的那個女生問了這句話。\n她不是挑釁，是真的不懂 —— 同期的人都去當指導、當發言人、去接節目了。\n只有你還每天第一個進練習室。`,
+ ch:()=>[
+  {t:'💃 什麼都不解釋，用一支獨舞回答她',d:`檢定：舞蹈｜難度 ${DF(21)}｜舞蹈鑽研 +1`,
+   run:()=>{const c=chk('dance',21);
+    if(c.ok){S.flags.pureDancer=1;
+     return{ok:1,calc:c.txt+'　（此後舞蹈 💠 鑽研進度 +1）',
+      story:'你只跳了三十二拍，沒有音樂，沒有鏡子。\n她看完之後沒說話。隔天她比你早到。',
+      log:'🩰 以獨舞作答（舞蹈鑽研 +1）：'+fx({dance:rr(1,3),loyal:rr(4800,8000),rep:rr(8,13),fans:rr(9000,15000),fat:rr(6,11)})};}
+    return{ok:0,calc:c.txt,
+     story:'第二十四拍的時候，膝蓋提醒了你一次。\n你把動作收掉，笑著說「今天先這樣」。她假裝沒看見。',
+     log:'獨舞未完成：'+fx({stress:rr(8,13),hp:-rr(3,7),loyal:rr(1200,2400)})};}},
+  {t:'🕯️ 只回一句：「因為我還想跳。」',d:'無風險：死忠粉大幅提升、壓力大幅下降、口碑提升｜舞蹈鑽研 +1',
+   run:()=>{S.flags.pureDancer=1;
+    return{ok:1,calc:'不需要理由（此後舞蹈 💠 鑽研進度 +1）',
+     story:'她愣了一下，然後笑了。\n那句話後來被她貼在自己的置頂貼文上，底下有兩千多個讚。',
+     log:'🩰 純粹的答案（舞蹈鑽研 +1）：'+fx({loyal:rr(3200,5500),stress:-rr(14,20),rep:rr(5,9)})};}},
+  {t:'🧑‍🏫 「那就一起練。」從最基本的開始',d:'解鎖教練路線｜口碑大增、球團關係提升、主持提升',
+   run:()=>{S.flags.coachTrack=1;
+    return{ok:1,calc:'原來這也算幕後',
+     story:'你陪她把一個八拍拆成八次。\n拆到第五次的時候你才發現，自己講解的樣子跟當年那位老師一模一樣。',
+     log:'開始帶她（解鎖教練第二人生）：'+fx({rep:rr(10,16),rel:rr(8,13),loyal:rr(2000,3600),host:rr(1,3)})};}}]},
 {id:'mid_body',where:['pro','amateur'],w:13,cd:99,once:1,tag:'warn',cond:()=>S.age>=30,
  title:()=>'🫀 三十歲的身體會講另一種話',
  desc:()=>`同一套編排，你現在需要多熱身二十分鐘。\n物理治療師說得很直接：「妳可以再跳很多年，但方法要換。」`,
@@ -1769,14 +1856,22 @@ function midMax(){let n=2;const R=LG[S.lg].rank||0;
  return clamp(n,2,4);}
 
 /* ── 挖角／兼任／返台 ── */
+/* ▼ 修正：所有「會 pick() 抽球團」的邀約一律做年度快取
+   —— 否則同一畫面的敘述與按鈕可能指向不同球團，且重入時會被重抽 */
+function yrCache(key,fn){const f=S.flags;
+ if(!f.yc)f.yc={};if(!f.ycY)f.ycY={};
+ if(f.ycY[key]!==S.year){f.ycY[key]=S.year;f.yc[key]=fn();}
+ return f.yc[key];}
 function poachTarget(){const o=ovr(),rk=LG[S.lg].rank||0;
- /* ▼ P8：純靠粉絲挖角，仍需 OVR 接近門檻（req−6）＋粉絲 5 萬 */
- if(o>=LG.cpbl.req||(o>=LG.cpbl.req-6&&S.fans>=50000)){const g=GROUPS.filter(x=>x.cpbl!==S.team);
+ const need=k=>Math.max(0,LG[k].req-reqCut(k).c);   /* ▼ 修正：與 upper() 一致，吃門檻減免 */
+ /* ▼ P8：純靠粉絲挖角，仍需 OVR 接近門檻（need−6）＋粉絲 5 萬 */
+ if(o>=need('cpbl')||(o>=need('cpbl')-6&&S.fans>=50000)){const g=GROUPS.filter(x=>x.cpbl!==S.team);
   if(g.length&&rk<=4){const p=pick(g);return{k:'cpbl',t:p.cpbl,g:p.id,d:p.tpbl};}}
- if(o>=LG.tpbl.req){const g=GROUPS.filter(x=>x.tpbl&&x.tpbl!==S.team);
+ if(o>=need('tpbl')){const g=GROUPS.filter(x=>x.tpbl&&x.tpbl!==S.team);
   if(g.length&&rk<=3){const p=pick(g);return{k:'tpbl',t:p.tpbl,g:p.id,d:null};}}
- if(o>=LG.tvl.req&&rk<=1){const v=pick(VOLLEY.filter(x=>x!==S.team));return{k:'tvl',t:v,g:null,d:null};}
+ if(o>=need('tvl')&&rk<=1){const v=pick(VOLLEY.filter(x=>x!==S.team));return{k:'tvl',t:v,g:null,d:null};}
  return null;}
+const tampOffer=()=>yrCache('tamp',poachTarget);
 function canSide(){return !isAma()&&!isSchool()&&OFF()&&!S.sideLg&&!S.dual&&S.age>=19
  &&S.health>=60&&S.fatigue<=70&&(LG[S.lg].rank||0)>=1&&(LG[S.lg].rank||0)<=4;}
 function sideOffers(){if(!canSide())return[];
@@ -1803,6 +1898,16 @@ function homeOffers(){if(!(S.lg==='korea'||S.lg==='asia'))return[];
  if(o>=LG.tpbl.req-6){const p=pick(GROUPS.filter(x=>x.tpbl));
   out.push({k:'tpbl',t:p.tpbl,g:p.id,d:null,n:`${p.name}・${p.style}｜返台加入職籃（海歸免徵選）`});}
  return out;}
+const homeOffersC=()=>yrCache('home',homeOffers)||[];
+/* 同級轉隊對象（抽出成函式以便年度快取） */
+function sameTeamAlt(){let a=null;
+ if(S.lg==='cpbl'){const g=GROUPS.filter(x=>x.cpbl!==S.team);if(g.length){const q=pick(g);a={t:q.cpbl,g:q.id,d:q.tpbl,n:q.name};}}
+ else if(S.lg==='tpbl'){const g=GROUPS.filter(x=>x.tpbl&&x.tpbl!==S.team);if(g.length){const q=pick(g);a={t:q.tpbl,g:q.id,d:null,n:q.name};}}
+ else if(S.lg==='tvl')a={t:pick(VOLLEY.filter(x=>x!==S.team)),g:null,d:null,n:'同級職排'};
+ else if(S.lg==='indieball'){const g=INDIE.filter(x=>x.name!==S.team);if(g.length){const q=pick(g);a={t:q.name,g:null,d:null,n:q.style};}}
+ else if(S.lg==='korea')a={t:pick(KOREA.filter(x=>x!==S.team)),g:null,d:null,n:'韓國同級'};
+ return a;}
+const altOffer=()=>yrCache('alt',sameTeamAlt);
 
 /* ============================================================ UI */
 const fanT=n=>n<1000?String(n):n<10000?(n/1000).toFixed(1)+'k':(n/10000).toFixed(1)+'萬';
@@ -1919,10 +2024,13 @@ function ui(){const o=ovr();
   <div class="trk"><div class="fil" style="width:${Math.min(100,S[k]/CFG.absCap*100)}%"></div></div>
   <span class="v"><b>${S[k]}</b> /${sh?c:gradeOf(c)+'?'} ${ms}</span></div>`;}).join(''));
  const A=apCalc();
+ /* ▼ 修正：maxAp 已於季初鎖定，面板需區分「本季實際」與「下季預估」 */
  H('apSrc',[`<span class="bd bd-s">基礎 3</span>`]
   .concat(A.plus.map(x=>`<span class="bd bd-e">${x}</span>`))
   .concat(A.minus.map(x=>`<span class="bd bd-r">${x}</span>`))
-  .concat([`<span class="bd bd-g">合計 ${A.n}</span>`]).join(''));
+  .concat([`<span class="bd bd-g">本季 ${S.maxAp}</span>`])
+  .concat(A.n!==S.maxAp?[`<span class="bd bd-b">下季預估 ${A.n}（季初重新結算）</span>`]:[])
+  .join(''));
  const g=GOALS[S.goal],tv=g.t(S);
  H('goalCard',`<b>${esc(g.name)} <span class="chip ${tv?'c-up':'c-neu'}">${TIERN[tv]}</span></b><i>${esc(g.desc)}</i>`);
  const C=[['宿敵線',S.chain.rival],['恩師線',S.chain.mentor],['金主線',S.chain.spon],['黑粉線',S.chain.tboss]];
@@ -1958,6 +2066,10 @@ function ui(){const o=ovr();
  if(S.flags.chronic)b.push('<span class="bd bd-r">🩹 舊傷纏身</span>');
  if(S.flags.paycut)b.push('<span class="bd bd-r">📉 減薪先例（底薪 −8%）</span>');
  if(S.flags.union)b.push('<span class="bd bd-e">🤝 集體協商發起人</span>');
+ if(S.flags.mateTip)b.push('<span class="bd bd-t">🤝 同期情報（徵選 +2）</span>');
+ if(S.flags.vetRole)b.push(`<span class="bd bd-b">🧭 ${({coach:'隊內指導',voice:'對外發言人',dancer:'純舞者'})[S.flags.vetRole]}</span>`);
+ if(S.flags.voiceOk)b.push('<span class="bd bd-e">📣 發言人歷練（主持訓練 +1）</span>');
+ if(S.flags.pureDancer)b.push('<span class="bd bd-k">🩰 純粹的舞者（舞蹈鑽研 +1）</span>');
  H('bdgs',b.join(''));achScan();renderLog();}
 function log(t){S.logs.unshift({y:S.year,p:S.phName[S.phase].split('：')[0],t});
  if(S.logs.length>160)S.logs.pop();renderLog();}
@@ -1984,72 +2096,73 @@ function ensure(box,l,fn){if(!box||box.children.length)return;
 
 /* ── ⑧ 隱藏成就 ── */
 const ACH=[
- {id:'firstpro',n:'🎒 第一次上場',t:0,chk:s=>s.flags.official},
- {id:'firstpay',n:'💰 第一筆薪水',t:0,chk:s=>s.careerIncome>0},
- {id:'fan10k',n:'📱 破萬粉絲',t:0,chk:s=>s.fans>=10000},
- {id:'renew',n:'🤝 第一次續約',t:0,chk:s=>s.flags.renewed},
- {id:'counsel',n:'🧘 第一次求助',t:0,chk:s=>s.flags.counsel},
- {id:'awake',n:'🌈 全能覺醒者',t:1},
- {id:'vet5',n:'🎖️ 元老',t:1,chk:s=>s.flags.vet5},
- {id:'grind',n:'🏋️ 練功魔人',t:1,chk:s=>AK.some(k=>(s.stat.trainCnt[k]||0)>=20)},
- {id:'mic',n:'🎤 麥克風女王',t:1,chk:s=>s.host>=60},
- {id:'catlady',n:'🐈 球場貓奴',t:1},
- {id:'oldtape',n:'📼 回望青春',t:1},
- {id:'sendhome',n:'💌 寄回家的錢',t:1},
- {id:'cross',n:'🔀 兩座球場',t:2},
- {id:'korea',n:'🇰🇷 跨海',t:2,chk:s=>s.flags.korea},
- {id:'actress',n:'🎬 螢幕初登場',t:2},
- {id:'case',n:'⚖️ 判例先行者',t:2},
- {id:'flag',n:'🎽 大旗傳承',t:2},
- {id:'ring1',n:'🏆 首冠',t:2,chk:s=>s.rings>=1},
- {id:'onepass',n:'📋 一次就過',t:2,chk:s=>s.flags.tryOnce},
- {id:'captain',n:'📣 戴上隊長臂章',t:2},
- {id:'cpos',n:'⚾ 主題日 C 位',t:2},
- {id:'hexa',n:'💎 六邊形戰士',t:3,chk:s=>AK.every(k=>s[k]>=62)},
- {id:'clean',n:'🕊️ 零黑粉生涯',t:3,late:1,chk:s=>s.stat.trollPeak<=10},
- {id:'noinj',n:'🩹 無傷到底',t:3,late:1,chk:s=>s.stat.noInjury&&!s.flags.chronic&&s.retireAge>=30},
- {id:'oneteam',n:'🏠 一隊一生',t:3,late:1,chk:s=>s.flags.vet8&&s.stat.transfers<=1},
- {id:'tri',n:'🌏 三聯盟巡禮',t:3,chk:s=>Object.keys(s.stat.ranks).length>=3},
- {id:'thrifty',n:'💸 節儉天后',t:3,late:1,chk:s=>s.money>=800&&Object.keys(s.owned).length===0},
- {id:'rise',n:'🔥 逆風登頂',t:3,chk:s=>s.flags.hard&&(LG[s.lg].rank||0)>=4},
- {id:'perfect',n:'🎆 完美句點',t:3,chk:s=>s.flags.farewell&&s.flags.ringFwYear},
- {id:'dynasty',n:'👑 三冠王朝',t:4,chk:s=>s.rings>=3},
- {id:'wtour',n:'🌐 世界巡演',t:4},
- {id:'hofasia',n:'🏛️ 名人堂＋亞洲總召',t:4,chk:s=>s.flags.hof&&s.flags.asiaOk},
- {id:'beyond',n:'⛰️ 破格（任一軸 87+）',t:4,chk:s=>AK.some(k=>s[k]>=87)},
- {id:'burnout',n:'🕯️ 燃燒到最後',t:4,chk:s=>s.burn>=BURN_LIMIT},
- {id:'century',n:'🧿 百年一遇的證明',t:4,chk:s=>(s.flags.tier??1)===4&&ovr()>=80},
- {id:'bio',n:'📖 傳記與紀錄片',t:4,chk:s=>s.flags.legacy&&s.flags.doc},
-{id:'hof',n:'🏛️ 名人堂成員',t:2},
- {id:'asia',n:'🌏 亞洲總召',t:2},
+ {id:'firstpro',n:'🎒 第一次上場',t:0,d:'首次以正式成員身分登上職業聯盟（練習生不算）',chk:s=>s.flags.official},
+ {id:'firstpay',n:'💰 第一筆薪水',t:0,d:'生涯總收入首次超過 0 萬',chk:s=>s.careerIncome>0},
+ {id:'fan10k',n:'📱 破萬粉絲',t:0,d:'大眾粉絲數達到 10,000',chk:s=>s.fans>=10000},
+ {id:'renew',n:'🤝 第一次續約',t:0,d:'季末選擇「續留原隊」，完成一次續約',chk:s=>s.flags.renewed},
+ {id:'counsel',n:'🧘 第一次求助',t:0,d:'季初使用「心理諮商與短期休假」',chk:s=>s.flags.counsel},
+ {id:'awake',n:'🌈 全能覺醒者',t:1,d:'以全能連段輪替訓練滿 6 個軸，觸發覺醒（六軸同時 +1）'},
+ {id:'vet5',n:'🎖️ 元老',t:1,d:'在同一支隊伍效力滿 5 年',chk:s=>s.flags.vet5},
+ {id:'grind',n:'🏋️ 練功魔人',t:1,d:'單一屬性累積訓練 20 次以上',chk:s=>AK.some(k=>(s.stat.trainCnt[k]||0)>=20)},
+ {id:'mic',n:'🎤 麥克風女王',t:1,d:'主持能力達到 60',chk:s=>s.host>=60},
+ {id:'catlady',n:'🐈 球場貓奴',t:1,d:'累積 3 次處理「闖進外野的貓」事件'},
+ {id:'oldtape',n:'📼 回望青春',t:1,d:'觸發訓練插曲「翻到高中比賽影片」'},
+ {id:'sendhome',n:'💌 寄回家的錢',t:1,d:'在「寄回家的第一筆錢」中選擇寄一半回去'},
+ {id:'cross',n:'🔀 兩座球場',t:2,d:'成功簽下另一種運動的兼任合約（跨運動兼任）'},
+ {id:'korea',n:'🇰🇷 跨海',t:2,d:'簽約加入韓國應援聯盟',chk:s=>s.flags.korea},
+ {id:'actress',n:'🎬 螢幕初登場',t:2,d:'戲劇試鏡成功並取得角色'},
+ {id:'case',n:'⚖️ 判例先行者',t:2,d:'黑粉線 3/3：出庭作證並勝訴'},
+ {id:'flag',n:'🎽 大旗傳承',t:2,d:'宿敵線 3/3：接下宿敵交出的應援大旗'},
+ {id:'ring1',n:'🏆 首冠',t:2,d:'在總冠軍系列賽最終戰奪冠，取得 1 座戒指',chk:s=>s.rings>=1},
+ {id:'onepass',n:'📋 一次就過',t:2,d:'第一次報名公開徵選就三輪全數通過',chk:s=>s.flags.tryOnce},
+ {id:'captain',n:'📣 戴上隊長臂章',t:2,d:'在隊長改選中主動參選並當選'},
+ {id:'cpos',n:'⚾ 主題日 C 位',t:2,d:'在 CPBL 連續兩季排位為看板 C 位'},
+ {id:'hexa',n:'💎 六邊形戰士',t:3,d:'六軸能力全部達到 62 以上',chk:s=>AK.every(k=>s[k]>=62)},
+ {id:'clean',n:'🕊️ 零黑粉生涯',t:3,late:1,d:'引退時，生涯黑粉峰值不超過 10',chk:s=>s.stat.trollPeak<=10},
+ {id:'noinj',n:'🩹 無傷到底',t:3,late:1,d:'30 歲之後才引退，且生涯全程沒有留下舊傷',chk:s=>s.stat.noInjury&&!s.flags.chronic&&s.retireAge>=30},
+ {id:'oneteam',n:'🏠 一隊一生',t:3,late:1,d:'同隊滿 8 年（隊史傳奇），且生涯轉隊次數不超過 1 次',chk:s=>s.flags.vet8&&s.stat.transfers<=1},
+ {id:'tri',n:'🌏 三聯盟巡禮',t:3,d:'生涯待過 3 個不同階級的職業聯盟',chk:s=>Object.keys(s.stat.ranks).length>=3},
+ {id:'thrifty',n:'💸 節儉天后',t:3,late:1,d:'引退時結餘 800 萬以上，且從未購置任何資產（經紀團隊／自宅／車／保險／證照／深造）',chk:s=>s.money>=800&&Object.keys(s.owned).length===0},
+ {id:'rise',n:'🔥 逆風登頂',t:3,d:'以 💀 苦命種子登上 CPBL 或更高階的聯盟',chk:s=>s.flags.hard&&(LG[s.lg].rank||0)>=4},
+ {id:'perfect',n:'🎆 完美句點',t:3,d:'在宣布引退巡迴的那一季拿下總冠軍',chk:s=>s.flags.farewell&&s.flags.ringFwYear},
+ {id:'dynasty',n:'👑 三冠王朝',t:4,d:'生涯累積 3 座總冠軍',chk:s=>s.rings>=3},
+ {id:'wtour',n:'🌐 世界巡演',t:4,d:'接下世界巡演邀約並完成全部十二場'},
+ {id:'hofasia',n:'🏛️ 名人堂＋亞洲總召',t:4,d:'同時取得應援名人堂席位與亞洲聯合舞台總召資格',chk:s=>s.flags.hof&&s.flags.asiaOk},
+ {id:'beyond',n:'⛰️ 破格（任一軸 84+）',t:4,sd:1,d:'任一屬性達到 84。⚪ 平凡種子的資質天花板僅 83，需靠 ✈️ 自費海外深造（舞蹈／特技上限 +3）碰運氣；🌟 天才以上可正常達成；💀 苦命種子起點最低，但每次 💠 鑽研突破推高 2 點（上限 10 次），練滿必定超過 84',chk:s=>AK.some(k=>s[k]>=84)},
+ {id:'burnout',n:'🕯️ 燃燒到最後',t:4,d:'壓力三振：崩潰警訊累積 3 次，被醫生禁止上場',chk:s=>s.burn>=BURN_LIMIT},
+ {id:'century',n:'🧿 百年一遇的證明',t:4,d:'以 👑 百年一遇種子開局，並讓 OVR 達到 80',chk:s=>(s.flags.tier??1)===4&&ovr()>=80},
+ {id:'bio',n:'📖 傳記與紀錄片',t:4,d:'在「自傳與紀錄片提案」中選擇兩者同步進行',chk:s=>s.flags.legacy&&s.flags.doc},
+ {id:'voice',n:'📣 產業的聲音',t:3,d:'選擇對外發言人路線，並在危機記者會上放下稿子、照實回答且檢定成功',chk:s=>!!s.flags.voiceOk},
+{id:'hof',n:'🏛️ 名人堂成員',t:2,d:'通過應援名人堂票選（拍回顧影片拉票，或靠死忠粉自發推選）'},
+ {id:'asia',n:'🌏 亞洲總召',t:2,d:'接下亞洲聯合舞台總召，並成功定調跨國聯合編舞'},
  /* ── 天賦路線專屬（ty:1）── */
- {id:'t_dancer',n:'🩰 刀群之心',t:3,ty:1,chk:s=>s.type==='dancer'&&s.dance>=80&&(s.cTotal||0)>=5},
- {id:'t_visual',n:'📔 封面女郎',t:3,ty:1,chk:s=>s.type==='visual'&&s.charm>=78&&s.flags.redcarpet},
- {id:'t_host',n:'🎙️ 麥克風接棒',t:3,ty:1,chk:s=>s.type==='host'&&s.host>=75&&s.second==='tv'},
- {id:'t_social',n:'📡 演算法寵兒',t:3,ty:1,chk:s=>s.type==='social'&&s.fans>=300000&&s.social>=75},
- {id:'t_acro',n:'🕊️ 無重力',t:4,ty:1,chk:s=>s.type==='acro'&&s.acro>=80&&s.flags.pyTop&&s.flags.openFlip&&s.flags.mascotOk},
+ {id:'t_dancer',n:'🩰 刀群之心',t:3,ty:1,d:'💃 主舞型｜舞蹈 80 ＋ 生涯 C 位累積 5 季',chk:s=>s.type==='dancer'&&s.dance>=80&&(s.cTotal||0)>=5},
+ {id:'t_visual',n:'📔 封面女郎',t:3,ty:1,d:'✨ 門面型｜魅力 78 ＋ 年度應援獎紅毯造型檢定成功',chk:s=>s.type==='visual'&&s.charm>=78&&s.flags.redcarpet},
+ {id:'t_host',n:'🎙️ 麥克風接棒',t:3,ty:1,d:'🎤 主持型｜主持 75 ＋ 第二人生選擇「綜藝藝人／主持人」',chk:s=>s.type==='host'&&s.host>=75&&s.second==='tv'},
+ {id:'t_social',n:'📡 演算法寵兒',t:3,ty:1,d:'📱 社群型｜粉絲 30 萬 ＋ 社群 75',chk:s=>s.type==='social'&&s.fans>=300000&&s.social>=75},
+ {id:'t_acro',n:'🕊️ 無重力',t:4,ty:1,d:'🤸 特技型｜特技 76 ＋ 疊人塔頂、開球空翻、吉祥物拋接三項全部成功',chk:s=>s.type==='acro'&&s.acro>=76&&s.flags.pyTop&&s.flags.openFlip&&s.flags.mascotOk},
  /* ── 💀 苦命種子專屬（hd:1）── */
- {id:'h_diva',n:'💀 沒有天賦的天后',t:4,hd:1,chk:s=>s.flags.hard&&s.fans>=200000},
- {id:'h_kr',n:'🕯️ 從零到首爾',t:4,hd:1,chk:s=>s.flags.hard&&s.flags.korea},
- {id:'h_brk',n:'⛏️ 鑽研到底',t:3,hd:1,chk:s=>s.flags.hard&&AK.some(k=>(s.brkN[k]||0)>=3)},
- {id:'h_ovr',n:'🧱 別人的起點',t:3,hd:1,chk:s=>s.flags.hard&&ovr()>=62},
- {id:'h_fail',n:'🩹 五次落選',t:3,hd:1,chk:s=>s.flags.hard&&(s.flags.tryFail||0)>=5&&s.flags.official}];
+ {id:'h_diva',n:'💀 沒有天賦的天后',t:4,hd:1,d:'💀 苦命種子｜大眾粉絲達到 20 萬',chk:s=>s.flags.hard&&s.fans>=200000},
+ {id:'h_kr',n:'🕯️ 從零到首爾',t:4,hd:1,d:'💀 苦命種子｜成功簽約登陸韓國應援聯盟',chk:s=>s.flags.hard&&s.flags.korea},
+ {id:'h_brk',n:'⛏️ 鑽研到底',t:3,hd:1,d:'💀 苦命種子｜任一軸完成 3 次以上 💠 鑽研突破',chk:s=>s.flags.hard&&AK.some(k=>(s.brkN[k]||0)>=3)},
+ {id:'h_ovr',n:'🧱 別人的起點',t:3,hd:1,d:'💀 苦命種子｜綜合評分 OVR 達到 62',chk:s=>s.flags.hard&&ovr()>=62},
+ {id:'h_fail',n:'🩹 五次落選',t:3,hd:1,d:'💀 苦命種子｜公開徵選累積落選 5 次以上，最後仍成為正式成員',chk:s=>s.flags.hard&&(s.flags.tryFail||0)>=5&&s.flags.official}];
 const ATN=['⚪ 常見','🟢 普通','🔵 稀有','🟣 史詩','🟡 傳說'];
 const HGOAL=[
- {id:'up',n:'🪜 逆流而上',chk:s=>s.flags.startLow&&(LG[s.lg].rank||0)>=4},
- {id:'teach',n:'🧑‍🏫 桃李滿門',chk:s=>s.chain.mentor>=3&&s.second==='coach'},
- {id:'clean',n:'🕊️ 乾淨的職涯',chk:s=>s.stat.trollPeak<=15&&s.reputation>=80},
- {id:'vetval',n:'🧱 老將的價值',chk:s=>s.retireAge>=38&&s.flags.official&&ovr()>=55},
- {id:'zero',n:'🌾 一切從零',chk:s=>s.flags.hard&&(s.flags.tryFail||0)>=1&&s.rings>=1},
- {id:'idol',n:'🎪 全民偶像',chk:s=>s.loyalFans>=30000},
- {id:'world',n:'🧳 世界的舞台',chk:s=>s.flags.korea&&s.flags.asiaOk&&s.owned.study},
- {id:'both',n:'💞 兩全其美',chk:s=>s.second==='family'&&s.careerIncome>=800},
- {id:'pure',n:'🩰 純粹的舞者',chk:s=>s.dance>=78&&AK.every(k=>k==='dance'||s.dance>=s[k])},
- {id:'mc',n:'🎙️ 轉型典範',chk:s=>s.host>=65&&(s.second==='tv')},
- {id:'honest',n:'🧾 不欠人情',chk:s=>!s.flags.everQuit&&!s.flags.everPoach&&s.stat.transfers<=1},
- {id:'y18',n:'⏳ 十八年',chk:s=>(s.year-CFG.startYear)>=18},
- {id:'union',n:'🤝 沒有人被留下',chk:s=>!!s.flags.union},
- {id:'cross2',n:'🎮 圈外的一萬人',chk:s=>!!s.flags.crossFan&&s.loyalFans>=15000}];
+ {id:'up',n:'🪜 逆流而上',d:'從入門聯盟（TVL 職排／半職業籃球）起步，最終登上 CPBL 或更高階聯盟',chk:s=>s.flags.startLow&&(LG[s.lg].rank||0)>=4},
+ {id:'teach',n:'🧑‍🏫 桃李滿門',d:'恩師線完成 3/3，且第二人生選擇「啦啦隊教練／總監」',chk:s=>s.chain.mentor>=3&&s.second==='coach'},
+ {id:'clean',n:'🕊️ 乾淨的職涯',d:'生涯黑粉峰值 ≤15，且引退時口碑 ≥80',chk:s=>s.stat.trollPeak<=15&&s.reputation>=80},
+ {id:'vetval',n:'🧱 老將的價值',d:'38 歲之後才引退，且引退時仍是正式成員、OVR ≥55',chk:s=>s.retireAge>=38&&s.flags.official&&ovr()>=55},
+ {id:'zero',n:'🌾 一切從零',d:'💀 苦命種子，至少經歷 1 次徵選落選，最後仍拿下總冠軍',chk:s=>s.flags.hard&&(s.flags.tryFail||0)>=1&&s.rings>=1},
+ {id:'idol',n:'🎪 全民偶像',d:'死忠粉達到 30,000',chk:s=>s.loyalFans>=30000},
+ {id:'world',n:'🧳 世界的舞台',d:'登陸韓國 ＋ 取得亞洲總召 ＋ 自費完成海外深造一年',chk:s=>s.flags.korea&&s.flags.asiaOk&&s.owned.study},
+ {id:'both',n:'💞 兩全其美',d:'第二人生選擇「走入婚姻／家庭」，且生涯總收入 ≥800 萬',chk:s=>s.second==='family'&&s.careerIncome>=800},
+ {id:'pure',n:'🩰 純粹的舞者',d:'舞蹈 ≥78，且舞蹈是六軸中最高的屬性',chk:s=>s.dance>=78&&AK.every(k=>k==='dance'||s.dance>=s[k])},
+ {id:'mc',n:'🎙️ 轉型典範',d:'主持 ≥65，且第二人生選擇「綜藝藝人／主持人」',chk:s=>s.host>=65&&(s.second==='tv')},
+ {id:'honest',n:'🧾 不欠人情',d:'從未提前解約、從未接受合約期內挖角，且生涯轉隊 ≤1 次',chk:s=>!s.flags.everQuit&&!s.flags.everPoach&&s.stat.transfers<=1},
+ {id:'y18',n:'⏳ 十八年',d:'生涯持續 18 年以上（2026 年起算）',chk:s=>(s.year-CFG.startYear)>=18},
+ {id:'union',n:'🤝 沒有人被留下',d:'母企業縮編預算時，發起「集體協商」並成功保住全隊編制',chk:s=>!!s.flags.union},
+ {id:'cross2',n:'🎮 圈外的一萬人',d:'觸發實況圈跨圈導流，且死忠粉達到 15,000',chk:s=>!!s.flags.crossFan&&s.loyalFans>=15000}];
 
 /* ── 生涯卡片 ── */
 function drawCard(){const W=1080;
@@ -2159,6 +2272,9 @@ function migrate(p){if(!p||!p.s)return null;
   s.form=45;s.ps=0;s.psStep=0;s.burn=0;s.rival=null;s.posRole='';
   s.ach={};s.stat=defStat();s.stat.trollPeak=s.troll||0;s.recent=[];
   s.flags.settleY=null;s.flags.lineY=null;s.flags.bwTxt='';s.flags.debtTxt='';
+  s.flags.capShown=s.flags.capShown||{};s.streams=[];s.op=0;s.maxOp=2;
+  s.flags.opYear=null;s.flags.offUsed={};s.flags.offList=null;s.flags.offYear=null;
+  s.flags.yc=null;s.flags.ycY=null;
   AK.forEach(k=>{if(s.pot&&s.pot[k]>CFG.absCap)s.pot[k]=CFG.absCap;});
   return s;}
  return null;}
@@ -2170,6 +2286,9 @@ function loadSave(){let p=null;try{p=JSON.parse(localStorage.getItem(SK));}catch
  if(!S.flags.capShown)S.flags.capShown={};if(!S.rot)S.rot=[];
  if(!S.stat)S.stat=defStat();if(!S.owned)S.owned={};
  if(!S.mast)S.mast={};if(!S.brkN)S.brkN={};if(!S.keep)S.keep={};
+ if(!Array.isArray(S.streams))S.streams=[];
+ if(!isFinite(S.op))S.op=0;if(!isFinite(S.maxOp))S.maxOp=2;
+ if(!isFinite(S.maxAp)||S.maxAp<1)S.maxAp=3;if(!isFinite(S.ap))S.ap=0;
  if(typeof S.prng!=='number'||!isFinite(S.prng))initSeed(S.seed||'AAAA2222');
  ['money','careerIncome','fans','loyalFans'].forEach(k=>{if(!isFinite(S[k]))S[k]=0;});
  document.getElementById('setup').classList.add('hide');
@@ -2228,7 +2347,7 @@ function startGame(){
 function revealFinal(){const TT=TI();
  T('eDesc',`受測者：${S.name}\n種子碼：${S.seed}\n\n鑑定等級 ▸ ${TT.ic} ${TT.n}\n\n教練評語：「${TT.say}」\n\n六軸潛力評級\n`
   +AK.map(k=>`${AI[k]} ${AN[k]} ${gradeOf(cap(k))}`).join('　')
-  +`\n\n💠 鑽研上限：每軸最多 ${MB()} 次突破（觸頂後可續練）`
+  +`\n\n💠 鑽研上限：每軸最多 ${MB()} 次突破，每次推高上限 +${S.flags.hard?2:1}（觸頂後可續練）`
   +(TT.ab?`\n\n特殊天賦：${TT.ab}`:'')
   +'\n\n※ 具體資質數值需透過訓練瓶頸、運動科學檢測或名師指導才會揭露。');
  const b=document.getElementById('cBox');b.innerHTML='';
@@ -2276,9 +2395,9 @@ function vitals(){if(S.ended)return true;
  if(S.health<=0){ui();ending('健康透支，因傷被迫提前引退');return true;}
  if(S.stress>=100){ui();ending('身心俱疲崩潰，提前離開舞台');return true;}return false;}
 function renderPhase(){if(S.ended)return;hideRes();setTag('');if(vitals())return;
- const A=apCalc();S.maxAp=A.n;
  if(S.phase===0){rollForm();lineup();
-  if(!S.apGiven){S.ap=S.maxAp;S.apGiven=true;
+  /* ▼ 修正：maxAp 與 ap 同時鎖定，避免季中練出 +1 後顯示成 1/5 */
+  if(!S.apGiven){S.maxAp=apCalc().n;S.ap=S.maxAp;S.apGiven=true;
    if(S.stress>=88)log('🚨 壓力瀕臨崩潰：季末將進行健康判定，請立即安排休養。');
    else if(S.stress>=80)log('⚠️ 高壓警訊：本季舞台失誤機率大幅上升。');
    else if(S.stress>=70)log('心態警訊：所有檢定 −2、代言收入下降。');}}
@@ -2311,7 +2430,7 @@ function spring(){const b=document.getElementById('cBox');if(!b)return;b.innerHT
    const atCap=S[k]>=cap(k),canM=atCap&&(S.brkN[k]||0)<MB();
    const ex={dance:'疲勞上升、壓力上升',stamina:'疲勞上升',charm:'疲勞上升',
     host:'疲勞上升',social:'疲勞上升、粉絲提升',acro:'疲勞上升、健康下降'}[k];
-   const dd=canM?`💠 鑽研 ${(S.mast[k]||0).toFixed(0)}/${mastT(k)}（滿即上限 +1）｜疲勞減半`
+   const dd=canM?`💠 鑽研 ${(S.mast[k]||0).toFixed(0)}/${mastT(k)}（滿即上限 +${S.flags.hard?2:1}）｜疲勞減半`
     :atCap?`已達鑽研上限｜轉化為聲量與口碑`
     :`${AN[k]} +${lo}～${hi}｜${sl?'瓶頸期 −50%｜':''}${ct?ct+'｜':''}${ex}`;
    addC(b,`${t}（-1 AP）`,dd,()=>{S.ap--;
@@ -2392,6 +2511,7 @@ function renderMicro(){const e=pick(MIC),b=document.getElementById('cBox');
 
 /* ── 賽季中 ── */
 function renderMid(){const b=document.getElementById('cBox');if(!b)return;b.innerHTML='';
+ hideRes();                     /* ▼ 修正：清掉上一個事件殘留的判定結果卡 */
  S.midStep++;const MX=midMax();
  /* ▼ P17：懲罰移到結算判斷之後，且過勞一年只觸發一次 */
  if(S.midStep<=MX){
@@ -2448,6 +2568,7 @@ function postseason(b){setTag('lgd','季後賽');
 
 /* ── 季末 ── */
 function renderWinter(){const b=document.getElementById('cBox');if(!b)return;b.innerHTML='';
+ hideRes();                     /* ▼ 修正：簽約／行程結果卡不再殘留在選單上方 */
  /* ▼ Q3：本年季末行程已安排完畢，只允許推進（防 reload 重領獎勵） */
  if(S.flags.winDone===S.year){setTag('acc');
   T('eTitle','季末：本年行程已安排完畢');
@@ -2525,6 +2646,7 @@ function tryout(x){const b=document.getElementById('cBox');b.innerHTML='';setTag
  if(S.fatigue>=70){mod-=2;ms.push('疲勞 −2');}
  if(S.stress>=70){mod-=3;ms.push('高壓 −3');}
  if(S.flags.hard){mod+=1;ms.push('不服輸 +1');}
+ if(S.flags.mateTip){mod+=2;ms.push('同期情報 +2');}
  const R=LG[x.k].rank||0,ad=Math.round(R*1.2);
  const rounds=[{k:'charm',base:16,n:'初選：形象與體態'},
   {k:'dance',base:19,n:'複選：團體舞蹈'},
@@ -2607,7 +2729,9 @@ function contract(b){const grad=isSchool()&&S.age>=CFG.gradAge;
   addC(b,'🏁 完成引退儀式，結算生涯','',()=>ending('引退巡迴圓滿落幕，光榮掛靴'),'quit');save();return;}
  if(!isAma()&&S.trainee>0){
   T('eDesc',`完成了 ${S.year} 年賽季（練習生第 ${S.trainee} 年）\n${inc?incText()+'\n':''}${bw}${debt}`);
-  promote(b);save();return;}
+  promote(b);
+  if(S.age>=CFG.retireMin)retireB(b);   /* ▼ 修正：練習生不再被鎖死在轉正考核 */
+  save();return;}
  let forced=null;
  if(!isAma()){if(S.troll>=70)forced='troll';else if(S.clubRel<=-20)forced='rel';
   else if(S.age>=34&&o<38)forced='age';}
@@ -2659,24 +2783,19 @@ function contract(b){const grad=isSchool()&&S.age>=CFG.gradAge;
  else if(!isAma()&&forced==='age')addC(b,`🤝 續留【${S.team}】（1 年短約）`,'球團僅願意給 1 年｜球團關係提升',()=>{
   S.clubRel=clamp(S.clubRel+rr(3,6),-50,50);sign(S.lg,S.team,S.group,1,S.dualTeam,1);},'stay');
  /* 🇹🇼 返台（海歸免徵選） */
- if(S.flags.wantHome||S.lg==='korea'||S.lg==='asia')homeOffers().forEach(h=>
+ if(S.flags.wantHome||S.lg==='korea'||S.lg==='asia')homeOffersC().forEach(h=>
   addC(b,`🇹🇼 返台加入【${h.t}】（${LG[h.k].first} 年約）`,h.n,()=>{
    S.flags.returned=1;S.tryPass[h.k]=1;
    const s=fx({rep:rr(4,9),loyal:rr(3000,6000),stress:-rr(8,14)});
    log('決定返台發展：'+s);sign(h.k,h.t,h.g,LG[h.k].first,h.d,0);},'poach'));
  /* ⬆ 上位聯盟：Rank≥3 需先通過公開徵選 */
- upper().forEach(x=>{
+ upperOffers().forEach(x=>{
   if(x.needTry)addC(b,`📋 報名【${x.t}】公開徵選`,
    `${x.n}｜三輪徵選：魅力→舞蹈→主持／社群${S.tryTries[x.k]?`（已挑戰 ${S.tryTries[x.k]} 次，本次有加成）`:''}`,
    ()=>tryout(x),'try');
   else addC(b,x.l+`（${LG[x.k].first} 年約）`,x.n,()=>sign(x.k,x.t,x.g,LG[x.k].first,x.d,0));});
  /* 同級轉隊（修正⑨：門檻放寬） */
- if(!isAma()&&(S.clubRel<8||S.reputation>=65||S.flags.poach)){let a=null;
-  if(S.lg==='cpbl'){const g=GROUPS.filter(x=>x.cpbl!==S.team);if(g.length){const q=pick(g);a={t:q.cpbl,g:q.id,d:q.tpbl,n:q.name};}}
-  else if(S.lg==='tpbl'){const g=GROUPS.filter(x=>x.tpbl&&x.tpbl!==S.team);if(g.length){const q=pick(g);a={t:q.tpbl,g:q.id,d:null,n:q.name};}}
-  else if(S.lg==='tvl')a={t:pick(VOLLEY.filter(x=>x!==S.team)),g:null,d:null,n:'同級職排'};
-  else if(S.lg==='indieball'){const g=INDIE.filter(x=>x.name!==S.team);if(g.length){const q=pick(g);a={t:q.name,g:null,d:null,n:q.style};}}
-  else if(S.lg==='korea')a={t:pick(KOREA.filter(x=>x!==S.team)),g:null,d:null,n:'韓國同級'};
+ if(!isAma()&&(S.clubRel<8||S.reputation>=65||S.flags.poach)){const a=altOffer();
   if(a)addC(b,`🔄 轉隊至同級【${a.t}】（${LG[S.lg].first} 年約）`,`${a.n}｜代價：死忠粉大幅下降、口碑下降`,
    ()=>sign(S.lg,a.t,a.g,LG[S.lg].first,a.d,0));}
  /* 業餘／入門出路 */
@@ -2732,6 +2851,7 @@ function upper(){const o=ovr(),rk=LG[S.lg].rank||0,out=[];
   out.push({k:'tvl',t:p,g:null,d:null,needTry:false,
    l:`⬆ TVL 職排 ▸ 【${p}】`,n:'職排球團遞約｜入門聯盟・直接簽約'});}
  return out;}
+const upperOffers=()=>yrCache('upper',upper)||[];
 
 function retireB(b,from){addC(b,'🏁 考慮引退（結算生涯與第二人生）',
  `目前稱號：${honor()}｜可選第二人生 ${routes().length} 條`,()=>askRetire(from),'quit');}
@@ -2740,8 +2860,8 @@ function askRetire(from){const b=document.getElementById('cBox');b.innerHTML='';
  const tvTxt=(S.goal==='second')?'（待第二人生確定後判定）':TIERN[tv];
  T('eDesc',`確定在 ${S.age} 歲結束應援生涯嗎？\n\n榮譽稱號：${honor()}\n生涯目標「${g.name}」：${tvTxt}\n${g.desc}\n\n可選第二人生：${routes().map(r=>r.n).join('、')}`);
  addC(b,'✅ 確認引退，選擇第二人生','',()=>ending(null),'go');
- /* ▼ P4：回到原本所在的季末階段，不再退回合約畫面重複簽約 */
- addC(b,'↩ 再拚一年','',()=>{S.winStep=(from==='off')?1:0;renderWinter();});}
+ /* ▼ P4：renderWinter 依 flags.conDone 自行分派，回到原本所在的季末階段 */
+ addC(b,'↩ 再拚一年','',()=>renderWinter());}
 function toFree(k,t){S.lg=k;S.team=t;S.group=null;S.contract=0;S.dual=false;S.dualTeam=null;
  S.clubRel=0;S.years=0;S.trainee=0;S.flags.official=0;S.posRole='';S.cSeason=0;S.form=0;S.ps=0;
  const c=tCol(t);S.tc1=c?c[0]:null;S.tc2=c?c[1]:null;
@@ -3115,7 +3235,7 @@ function honor(){let t;
  else if(S.flags.hof)t="🏛️ 應援名人堂成員";
  else if(S.rings>=3)t="💍 三冠加冕的應援女王";
  else if(S.flags.asia||S.flags.asiaOk)t="🌏 亞洲聯合舞台總召";
- else if(AK.some(k=>S[k]>=87))t="⛰️ 突破天賦邊界的破格者";
+ else if(AK.some(k=>S[k]>=84))t="⛰️ 突破天賦邊界的破格者";
  else if(S.flags.crossSport&&S.rings>=1)t="🔀 橫跨兩種球場的全能應援員";
  else if(S.flags.returned&&S.flags.korea)t="🇹🇼 海歸返台的跨海應援天后";
  else if(S.flags.tookFlag&&S.reputation>=70)t="🎽 大旗傳承的精神領袖";
@@ -3155,7 +3275,7 @@ function routes(){const R=[];
   ep:()=>`你從嘉賓變成固定主持，第二年拿到一檔運動綜藝的棚內主持棒。\n第三年入圍金鐘綜藝節目主持人獎，紅毯上有人喊你「前應援天后」，你笑著回：「現在是主持人。」`});
  if(S.social>=55&&S.fans>=100000)R.push({k:'kol',n:'📱 全職網紅／直播主',c:'社群 55＋粉絲 10 萬',
   ep:()=>`你把應援的節奏感搬進直播間，業配接到要排隊。\n第二年因為一支選品影片被大量檢視，你花了三天把每個質疑逐條回完——這招你在球場學過。\n第三年開了自己的 MCN，簽下五個新人。`});
- if(S.reputation>=70&&S.money>=80)R.push({k:'agent',n:'💼 運動經紀人',c:'口碑 70＋資金 80 萬',
+ if((S.reputation>=70&&S.money>=80)||(S.flags.voiceOk&&S.money>=50))R.push({k:'agent',n:'💼 運動經紀人',c:'口碑 70＋資金 80 萬，或 📣 發言人歷練＋資金 50 萬',
   ep:()=>`你成立了一家小型經紀公司，專門接應援員與運動員的合約。\n你替新人談下的第一份合約，年限比你當年多兩年、條件好三倍。\n她哭著問為什麼幫她爭這麼多，你說：「因為當年沒人幫我爭。」`});
  if(S.flags.korea||S.flags.overseas||S.flags.asiaOk)R.push({k:'kdir',n:'🌏 海外舞蹈總監',c:'海外舞台或深造經歷',
   ep:()=>`你在首爾與台北之間來回，先接應援團編舞，後來被電視台挖去做打歌舞台。\n第三年你負責的年末大賞舞台上了海外熱搜。\n記者問你從哪裡學的，你說：「台灣的球場。」`});
@@ -3181,7 +3301,7 @@ let HALL=null;
 function writeHall(){try{localStorage.setItem(HK,JSON.stringify(HALL));}catch(e){}}
 function loadHall(force){if(HALL&&!force)return HALL;
  let o=null;try{o=JSON.parse(localStorage.getItem(HK));}catch(e){}
- HALL=(o&&typeof o==='object')?{ach:o.ach||{},hid:o.hid||{},runs:o.runs||0,tiers:o.tiers||{}}:{ach:{},hid:{},runs:0,tiers:{}};
+HALL=(o&&typeof o==='object')?{ach:o.ach||{},hid:o.hid||{},runs:o.runs||0,tiers:o.tiers||{},goals:o.goals||{}}:{ach:{},hid:{},runs:0,tiers:{},goals:{}};
  /* 舊版隱藏目標以「顯示名稱」為 key → 一次性轉為 id */
  const nm={};HGOAL.forEach(g=>{nm[g.n]=g.id;});let mig=0;
  Object.keys(HALL.hid).forEach(k=>{const id=nm[k];
@@ -3192,6 +3312,17 @@ function hallSync(){const HL=loadHall();let ch=0;
  ACH.forEach(a=>{const ag=S.ach[a.id];if(!ag)return;const cur=HL.ach[a.id];
   if(!cur||ag<cur.age){HL.ach[a.id]={age:ag,name:S.name,seed:S.seed,t:a.t};ch=1;}});
  if(ch)writeHall();}
+ /* 生涯目標達成紀錄：一段生涯只記一次；'second' 目標需等第二人生確定後才判定 */
+function logGoal(HL,force){
+ if(S.flags.goalLogged)return;
+ if(S.goal==='second'&&!force)return;
+ S.flags.goalLogged=1;
+ let tv=0;try{tv=GOALS[S.goal].t(S)||0;}catch(e){}
+ HL.goals=HL.goals||{};
+ const g=HL.goals[S.goal]||(HL.goals[S.goal]={n:0,1:0,2:0,3:0,best:0});
+ g.n=(g.n||0)+1;
+ if(tv){g[tv]=(g[tv]||0)+1;
+  if(tv>(g.best||0)){g.best=tv;g.bn=S.name;g.ba=S.age;g.bs=S.seed;}}}
 function saveHall(inc){const HL=loadHall(),A=achSum();
  A.list.forEach(a=>{const ag=S.ach[a.id]||S.age,cur=HL.ach[a.id];
   if(!cur||ag<cur.age)HL.ach[a.id]={age:ag,name:S.name,seed:S.seed,t:a.t};});
@@ -3200,27 +3331,62 @@ function saveHall(inc){const HL=loadHall(),A=achSum();
   S.flags.hidLog[o.id]=1;HL.hid[o.id]=(HL.hid[o.id]||0)+1;});
  if(inc&&!S.flags.runLogged){S.flags.runLogged=1;HL.runs=(HL.runs||0)+1;
   HL.tiers=HL.tiers||{};HL.tiers[S.flags.tier??1]=1;}
+ logGoal(HL,!inc);
  writeHall();return HL;}
 const HCLS=['bd-b','bd-e','bd-k','bd-p','bd-g'];
+function hallTip(el){const box=document.getElementById('hallTip');if(!box)return;
+ const same=box.dataset.k===el.dataset.k;
+ document.querySelectorAll('#hallBody .bd.sel').forEach(x=>x.classList.remove('sel'));
+ if(same){box.style.display='none';box.dataset.k='';return;}
+ el.classList.add('sel');box.dataset.k=el.dataset.k;
+ box.innerHTML=`<b style="color:var(--txt);font-size:.82rem">${esc(el.dataset.t)}</b><br>`
+  +esc(el.dataset.d).replace(/\n/g,'<br>');
+ box.style.display='block';}
+
 function renderHall(){const HL=loadHall(),n=Object.keys(HL.ach).length,hn=Object.keys(HL.hid).length;
- T('hallTit',`成就殿堂　${n}/${ACH.length}　隱藏目標 ${hn}/${HGOAL.length}　已完成 ${HL.runs} 段生涯`);
- let h='';
+ const G=HL.goals||{},GK=Object.keys(GOALS);
+ const tg=[0,0,0,0];let tn=0;
+ GK.forEach(k=>{const g=G[k];if(!g)return;tn+=g.n||0;for(let i=1;i<=3;i++)tg[i]+=g[i]||0;});
+ T('hallTit',`成就殿堂　${n}/${ACH.length}　🎯 ${tg[3]}／${tg[2]}／${tg[1]}　隱藏 ${hn}/${HGOAL.length}　已完成 ${HL.runs} 段生涯`);
+ let uid=0;
+ const tap=(cls,label,tit,desc)=>{uid++;
+  return `<span class="bd ${cls} tap" data-k="k${uid}" data-t="${esc(tit)}" data-d="${esc(desc)}" title="${esc(desc)}" onclick="hallTip(this)">${label}</span>`;};
+ let h='<div id="hallTip"></div>';
+ /* ── 成就 ── */
  for(let t=4;t>=0;t--){const g=ACH.filter(a=>a.t===t);if(!g.length)continue;
   h+=`<span class="lb2" style="margin-top:12px">${ATN[t]}　${g.filter(a=>HL.ach[a.id]).length}/${g.length}</span><div class="bdgs">`;
   g.forEach(a=>{const u=HL.ach[a.id];
-   h+=u?`<span class="bd ${HCLS[t]}">${esc(a.n)}　<span style="opacity:.7">${u.age}歲・${esc(u.name)}</span></span>`
-       :`<span class="bd bd-s" style="opacity:.4">🔒 ${a.ty?'需特定天賦路線':a.hd?'需 💀 苦命種子':'？？？'}</span>`;});
+   if(u)h+=tap(HCLS[t],`${esc(a.n)}　<span style="opacity:.7">${u.age}歲・${esc(u.name)}</span>`,a.n,
+    `${ATN[t]}　達成條件：${a.d||'—'}\n最年輕紀錄：${u.age} 歲・${u.name}・種子 ${u.seed||'—'}`);
+   else h+=`<span class="bd bd-s" style="opacity:.4">🔒 ${a.ty?'需特定天賦路線':a.hd?'需 💀 苦命種子':a.sd?'需特定種子路線':'？？？'}</span>`;});
   h+='</div>';}
+ /* ── 生涯目標（金銀銅次數） ── */
+ h+=`<span class="lb2" style="margin-top:14px">🎯 生涯目標　🥇 ${tg[3]}　🥈 ${tg[2]}　🥉 ${tg[1]}（共挑戰 ${tn} 次）</span><div class="bdgs">`;
+ GK.forEach(k=>{const g=G[k],GG=GOALS[k];
+  if(!g||!g.n){h+=`<span class="bd bd-s" style="opacity:.4">🔒 ${esc(GG.name)}</span>`;return;}
+  const bt=g.best||0,cls=bt>=3?'bd-g':bt>=2?'bd-ag':bt>=1?'bd-cu':'bd-s';
+  h+=tap(cls,`${esc(GG.name)}　<span style="opacity:.85">🥇${g[3]||0} 🥈${g[2]||0} 🥉${g[1]||0}</span>`,GG.name,
+   `三階條件：${GG.desc}\n挑戰 ${g.n} 次　🥇 ${g[3]||0}／🥈 ${g[2]||0}／🥉 ${g[1]||0}\n`
+   +(bt?`最佳紀錄：${TIERN[bt]}（${g.bn||'—'}・${g.ba||'—'} 歲・種子 ${g.bs||'—'}）`:'目前尚未達成任何階級'));});
+ h+='</div>';
+ /* ── 鑑定等級 ── */
  h+=`<span class="lb2" style="margin-top:14px">🌍 已征服的鑑定等級</span><div class="bdgs">`;
  SEED_TIER.forEach((tt,i)=>{h+=(HL.tiers&&HL.tiers[i])
-  ?`<span class="bd ${tt.cls}">${tt.ic} ${tt.n}</span>`
-  :`<span class="bd bd-s" style="opacity:.4">🔒 ${tt.ic}</span>`;});
+  ? tap(tt.cls,`${tt.ic} ${esc(tt.n)}`,`${tt.ic} ${tt.n}`,
+     `教練評語：「${tt.say}」\n起始加成 ${tt.start>=0?'+':''}${tt.start}　資質上限 ${tt.cap>=0?'+':''}${tt.cap}　💠 鑽研上限 ${MB_BY_SEED[i]}／軸`
+     +(tt.ab?`\n特殊天賦：${tt.ab}`:''))
+  : `<span class="bd bd-s" style="opacity:.4">🔒 ${tt.ic}</span>`;});
  h+='</div>';
+ /* ── 隱藏生涯目標 ── */
  h+=`<span class="lb2" style="margin-top:14px">🎯 隱藏生涯目標</span><div class="bdgs">`;
- HGOAL.forEach(g=>{h+=HL.hid[g.id]?`<span class="bd bd-p">${esc(g.n)} ×${HL.hid[g.id]}</span>`
-  :`<span class="bd bd-s" style="opacity:.4">🔒 ？？？</span>`;});
+ HGOAL.forEach(g=>{h+=HL.hid[g.id]
+  ? tap('bd-p',`${esc(g.n)} ×${HL.hid[g.id]}`,g.n,`達成條件：${g.d||'—'}\n累積達成 ${HL.hid[g.id]} 次`)
+  : `<span class="bd bd-s" style="opacity:.4">🔒 ？？？</span>`;});
  h+='</div>';
- h+=`<div class="note" style="margin-top:12px">※ 殿堂會累積你所有生涯的紀錄，重新開始或清除存檔都不會消失，同一項成就只保留最年輕的達成紀錄。<br>💾 資料存放在此瀏覽器本機，關閉瀏覽器或重新開機都會保留。<br>⚠️ 但「清除瀏覽紀錄／Cookie」、無痕模式、更換裝置或更換瀏覽器時將讀取不到，屆時殿堂會從零開始。</div>
+ h+=`<div class="note" style="margin-top:12px">💡 <b style="color:var(--sub)">點一下已解鎖的徽章</b>（電腦也可滑鼠停留）即可查看達成條件與紀錄；再點一次收起。<br>
+ ※ 殿堂會累積你所有生涯的紀錄，重新開始或清除存檔都不會消失，同一項成就只保留最年輕的達成紀錄。<br>
+ 💾 資料存放在此瀏覽器本機，關閉瀏覽器或重新開機都會保留。<br>
+ ⚠️ 但「清除瀏覽紀錄／Cookie」、無痕模式、更換裝置或更換瀏覽器時將讀取不到，屆時殿堂會從零開始。</div>
  <button type="button" class="btn ghost" style="margin-top:10px" onclick="clearHall()">🗑 清除成就殿堂紀錄</button>`;
  H('hallBody',h);}
 function toggleHall(){const c=document.getElementById('hallCard');if(!c)return;
@@ -3229,10 +3395,13 @@ function toggleHall(){const c=document.getElementById('hallCard');if(!c)return;
  c.scrollIntoView({behavior:'smooth',block:'nearest'});}
 function clearHall(){ask('清除成就殿堂','確定要清除所有跨生涯的成就收集紀錄嗎？\n此動作無法復原。',
  ()=>{try{localStorage.removeItem(HK);}catch(e){}HALL=null;renderHall();hallBtn();},'清除','取消');}
-function hallBtn(){const HL=loadHall(),n=Object.keys(HL.ach).length;
+function hallBtn(){const HL=loadHall(),n=Object.keys(HL.ach).length,G=HL.goals||{};
+ let g3=0,g2=0,g1=0;
+ Object.keys(GOALS).forEach(k=>{const g=G[k];if(!g)return;g3+=g[3]||0;g2+=g[2]||0;g1+=g[1]||0;});
  const e=document.getElementById('bAch');if(!e)return;
  e.innerHTML=`<b>🏆 成就殿堂（跨生涯收集）</b><div class="cs">`
   +`<span class="chip c-mon">${n}/${ACH.length} 項</span>`
+  +`<span class="chip c-up">🥇${g3} 🥈${g2} 🥉${g1}</span>`
   +`<span class="chip c-neu">已完成 ${HL.runs} 段生涯</span></div>`;}
 
 /* ── 引退結算 ── */
